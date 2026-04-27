@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>NEXUS</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#06080F;--bg1:#0C1220;--bg2:#0F1828;--bg3:#131E30;--bg4:#1A2840;
+  --gold:#C9A84C;--goldL:#E8C060;--gold2:#A87820;--goldA:rgba(201,168,76,.08);
+  --mint:#0DD9A0;--mintA:rgba(13,217,160,.1);
+  --rose:#E84040;--roseA:rgba(232,64,64,.1);
+  --blue:#3B82F6;--blueA:rgba(59,130,246,.1);
+  --violet:#A87BF0;--violetA:rgba(168,123,240,.1);
+  --amber:#E8A020;--amberA:rgba(232,160,32,.1);
+  --t1:#EEE8D0;--t2:#8896B3;--t3:#3A4A65;--t4:#1A2840;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.1);
+  --r1:12px;--r2:16px;--r3:20px;--r4:26px;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg0);font-family:'Vazirmatn',sans-serif;color:var(--t1);-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:none;outline:none;background:none;font-family:inherit;color:inherit}
+input,select,textarea{font-family:inherit;color:inherit;border:none;outline:none;background:none}
+::-webkit-scrollbar{display:none}*{scrollbar-width:none}
+
+/* mesh bg */
+.mesh{position:fixed;inset:0;pointer-events:none;z-index:0}
+.m1{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,.07),transparent 70%);top:-150px;right:-100px;border-radius:50%}
+.m2{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,.05),transparent 70%);bottom:-100px;left:-100px;border-radius:50%}
+
+/* screens */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;z-index:10}
+.screen.active{display:flex}
+
+/* ── LANG ── */
+#s-lang{align-items:center;justify-content:center;background:var(--bg0)}
+.lang-wrap{width:100%;max-width:360px;padding:40px 28px;text-align:center}
+.nxs-logo{width:72px;height:72px;border-radius:22px;background:linear-gradient(145deg,var(--goldL),var(--gold2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 16px 48px rgba(201,168,76,.3)}
+.brand{font-family:'Outfit',sans-serif;font-size:42px;font-weight:900;letter-spacing:10px;margin-bottom:4px}
+.brand-tag{font-family:'Outfit',sans-serif;font-size:10px;color:var(--t2);letter-spacing:3px;margin-bottom:44px}
+.lang-q{font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.8}
+.lang-cards{display:flex;gap:12px}
+.lang-card{flex:1;padding:22px 10px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r4);cursor:pointer;transition:all .25s;text-align:center}
+.lang-card:active{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 12px 32px rgba(201,168,76,.15)}
+.lang-flag{font-size:34px;margin-bottom:9px}
+.lang-name{font-size:17px;font-weight:700;margin-bottom:2px}
+.lang-sub{font-size:10px;color:var(--t2);font-family:'Outfit',sans-serif}
+
+/* ── ONBOARD ── */
+#s-onboard{background:var(--bg0)}
+.ob-scroll{flex:1;overflow-y:auto;padding-bottom:90px}
+.ob-top{padding:calc(42px + var(--safe-t)) 22px 16px;display:flex;align-items:center;gap:10px}
+.ob-logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,var(--goldL),var(--gold2));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ob-brand{font-family:'Outfit',sans-serif;font-size:18px;font-weight:900;letter-spacing:5px}
+.ob-steps{display:flex;gap:5px;padding:0 22px 22px}
+.ob-dot{flex:1;height:2px;border-radius:1px;background:var(--bg4);transition:all .4s}
+.ob-dot.done{background:var(--gold2)}
+.ob-dot.active{background:linear-gradient(90deg,var(--gold),var(--mint))}
+.ob-body{padding:0 22px}
+.ob-step{display:none;animation:fadeUp .3s ease}
+.ob-step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.step-eye{font-family:'Outfit',sans-serif;font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:5px}
+.step-ttl{font-size:21px;font-weight:800;margin-bottom:5px;line-height:1.3}
+.step-dsc{font-size:12px;color:var(--t2);margin-bottom:20px;line-height:1.7}
+.step-opt{display:inline-block;font-size:10px;color:var(--t3);background:var(--bg3);padding:3px 9px;border-radius:7px;margin-bottom:16px}
+
+/* fields */
+.f{margin-bottom:13px}
+.fl{font-size:11px;color:var(--t2);font-weight:500;margin-bottom:5px;display:block}
+.fi{width:100%;padding:12px 14px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r1);font-size:14px;font-weight:500;transition:border-color .2s}
+.fi:focus{border-color:var(--gold)}
+.fi::placeholder{color:var(--t4)}
+.fi[type=number]{font-family:'DM Mono',monospace}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* bank grid */
+.bank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.bchip{padding:12px 5px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .2s}
+.bchip.sel{border-color:var(--gold);background:var(--goldA)}
+.bico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.blbl{font-size:10px;color:var(--t2);font-weight:500;text-align:center;transition:color .2s}
+.bchip.sel .blbl{color:var(--gold)}
+
+/* ob footer */
+.ob-foot{position:fixed;bottom:0;left:0;right:0;padding:12px 22px calc(12px + var(--safe-b));background:linear-gradient(to top,var(--bg0) 60%,transparent);display:flex;gap:9px;z-index:20}
+.btn-gold{flex:1;padding:15px;border-radius:var(--r3);background:linear-gradient(135deg,var(--goldL),var(--gold2));color:#0A0600;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(201,168,76,.28);transition:transform .15s,box-shadow .15s;font-family:inherit}
+.btn-gold:active{transform:scale(.97)}
+.btn-back{width:48px;height:48px;border-radius:var(--r1);background:var(--bg2);border:1px solid var(--bd);color:var(--t2);display:none;align-items:center;justify-content:center;flex-shrink:0}
+.btn-back.show{display:flex}
+
+/* ── APP SHELL ── */
+#s-app{background:var(--bg0)}
+.pages{flex:1;position:relative;overflow:hidden}
+.page{position:absolute;inset:0;overflow-y:auto;padding-bottom:calc(68px + var(--safe-b));display:none;flex-direction:column}
+.page.active{display:flex;animation:pageIn .22s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* topbar */
+.tb{padding:calc(44px + var(--safe-t)) 18px 12px;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0}
+.tb-l .eye{font-size:11px;color:var(--t2);margin-bottom:1px}
+.tb-l .ttl{font-size:20px;font-weight:800}
+.tb-r{display:flex;align-items:center;gap:7px}
+.ico-btn{width:38px;height:38px;border-radius:12px;background:var(--bg2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:border-color .2s;flex-shrink:0}
+.ico-btn:active{border-color:var(--gold)}
+.npip{position:absolute;top:7px;right:7px;width:7px;height:7px;background:var(--rose);border-radius:50%;border:2px solid var(--bg0)}
+.av{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--goldL),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;color:#0A0600;cursor:pointer;flex-shrink:0}
+.ltog{width:38px;height:38px;border-radius:12px;background:var(--bg2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;color:var(--t2);cursor:pointer}
+
+/* section row */
+.sec{display:flex;align-items:center;justify-content:space-between;padding:0 18px;margin-bottom:9px;flex-shrink:0}
+.sec-t{font-size:13px;font-weight:700}
+.sec-a{font-size:11px;color:var(--gold);font-weight:600;cursor:pointer}
+
+/* ── HOME ── */
+.bal-card{margin:0 14px 16px;border-radius:var(--r4);background:linear-gradient(145deg,#0F1B32,#080E1C);border:1px solid rgba(201,168,76,.14);padding:18px;position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);flex-shrink:0}
+.bc-shine{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent)}
+.bc-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);background-size:26px 26px}
+.bc-glow{position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(201,168,76,.07),transparent 70%);border-radius:50%}
+.bc-lbl{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t2);font-weight:500;margin-bottom:10px;position:relative;z-index:1}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--mint);flex-shrink:0;animation:lp 2s infinite}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(13,217,160,.4)}50%{box-shadow:0 0 0 5px rgba(13,217,160,0)}}
+.bc-amt{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-1px;margin-bottom:2px;position:relative;z-index:1;line-height:1.1}
+.bc-unit{font-size:12px;color:var(--t2);margin:0 4px}
+.bc-chg{font-size:11px;color:var(--mint);font-weight:600;margin-bottom:14px;position:relative;z-index:1;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:3px}
+.bc-div{height:1px;background:var(--bd);margin-bottom:11px;position:relative;z-index:1}
+.bc-stats{display:flex;position:relative;z-index:1}
+.bc-st{flex:1;padding:0 8px}
+.bc-st+.bc-st{border-right:1px solid var(--bd)}
+body.en .bc-st+.bc-st{border-right:none;border-left:1px solid var(--bd)}
+.bc-st:first-child{padding-right:0}
+.bc-st:last-child{padding-left:0}
+body.en .bc-st:first-child{padding-left:0;padding-right:8px}
+body.en .bc-st:last-child{padding-right:0;padding-left:8px}
+.bc-sl{font-size:10px;color:var(--t2);margin-bottom:2px;font-weight:500}
+.bc-sv{font-size:13px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* mix */
+.mix-card{margin:0 14px 16px;padding:14px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);flex-shrink:0}
+.mix-r{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.mix-r:last-child{margin-bottom:0}
+.mix-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.mix-nm{font-size:11px;color:var(--t2);flex:1}
+.mix-bw{width:72px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.mix-bf{height:100%;border-radius:2px}
+.mix-pc{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;width:26px;text-align:right}
+body.en .mix-pc{text-align:left}
+.mix-vl{font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;width:46px;text-align:left}
+body.en .mix-vl{text-align:right}
+
+/* quick actions */
+.qa-row{padding:0 14px 16px;display:flex;gap:9px;overflow-x:auto;flex-shrink:0}
+.qa{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;width:58px}
+.qa-ico{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--bd);transition:all .18s}
+.qa:active .qa-ico{transform:scale(.9);border-color:var(--gold)}
+.qa-lbl{font-size:10px;color:var(--t2);font-weight:500;text-align:center;white-space:nowrap}
+
+/* insight strip */
+.ins-strip{padding:0 14px 14px;display:flex;gap:9px;overflow-x:auto;flex-shrink:0}
+.ins-c{flex-shrink:0;width:190px;padding:13px;border-radius:var(--r3);border:1px solid var(--bd);background:var(--bg1);cursor:pointer;transition:transform .18s}
+.ins-c:active{transform:scale(.97)}
+.ins-ico{font-size:17px;margin-bottom:6px}
+.ins-bdg{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;margin-bottom:5px;font-family:'Outfit',sans-serif}
+.ins-ttl{font-size:12px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.ins-bdy{font-size:10px;color:var(--t2);line-height:1.5}
+
+/* ── ACCOUNTS ── */
+.acc-card{margin:0 14px 10px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);overflow:hidden;flex-shrink:0}
+.acc-hd{padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.acc-logo{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.acc-inf{flex:1;min-width:0}
+.acc-nm{font-size:13px;font-weight:700}
+.acc-num{font-size:10px;color:var(--t2);font-family:'DM Mono',monospace;margin-top:1px}
+.acc-bal{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;flex-shrink:0}
+.acc-acts{display:flex;gap:7px;padding:0 14px 11px}
+.btn-sm{padding:6px 12px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;transition:all .18s;font-family:inherit}
+.btn-sm-g{background:linear-gradient(135deg,var(--goldL),var(--gold2));color:#0A0600}
+.btn-sm-h{background:var(--bg3);border:1px solid var(--bd);color:var(--t2)}
+.btn-sm-g:active,.btn-sm-h:active{transform:scale(.94)}
+.acc-xpanel{border-top:1px solid var(--bd);padding:0;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+.acc-xpanel.open{max-height:280px;padding:13px 14px}
+.xrow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.025)}
+.xrow:last-child{border-bottom:none}
+.xlbl{font-size:10px;color:var(--t2);flex-shrink:0}
+.xval{font-size:12px;font-weight:500;font-family:'DM Mono',monospace;flex:1;text-align:center;margin:0 8px}
+.cpybtn{font-size:10px;color:var(--gold);font-weight:600;cursor:pointer;background:var(--goldA);border:1px solid rgba(201,168,76,.18);padding:3px 8px;border-radius:6px;flex-shrink:0}
+.acc-txns{border-top:1px solid var(--bd);padding:10px 14px}
+.txr{display:flex;align-items:center;justify-content:space-between;padding:7px 0}
+.txr+.txr{border-top:1px solid rgba(255,255,255,.02)}
+.txr-ico{width:30px;height:30px;border-radius:9px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.txr-nm{font-size:12px;font-weight:500}
+.txr-dt{font-size:9px;color:var(--t2);margin-top:1px;font-family:'Outfit',sans-serif}
+.txr-amt{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.pos{color:var(--mint)}.neg{color:var(--rose)}
+.see-all{text-align:center;padding:9px;font-size:11px;color:var(--gold);font-weight:600;cursor:pointer}
+.fund-row{margin:0 14px 8px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.fund-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.fund-rt{font-size:14px;font-weight:700;flex-shrink:0}
+
+/* ── WEALTH ── */
+.w-hero{margin:0 14px 12px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);padding:15px;flex-shrink:0}
+.w-lbl{font-size:10px;color:var(--t2);margin-bottom:4px}
+.w-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;letter-spacing:-1px}
+.w-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:13px;border-top:1px solid var(--bd);padding-top:11px}
+.w-st{text-align:center}
+.w-st+.w-st{border-right:1px solid var(--bd)}
+body.en .w-st+.w-st{border-right:none;border-left:1px solid var(--bd)}
+.w-sl{font-size:9px;color:var(--t3);margin-bottom:2px}
+.w-sv{font-size:11px;font-weight:700}
+.tick-row{padding:0 14px 13px;display:flex;gap:7px;overflow-x:auto;flex-shrink:0}
+.tick{flex-shrink:0;padding:9px 11px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);min-width:82px}
+.tnm{font-size:9px;color:var(--t2);font-weight:600;font-family:'Outfit',sans-serif;margin-bottom:2px}
+.tpr{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:1px}
+.tchg{font-size:10px;font-weight:600;font-family:'Outfit',sans-serif}
+.tchg.up{color:var(--mint)}.tchg.dn{color:var(--rose)}
+.a-row{margin:0 14px 9px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);padding:13px;display:flex;align-items:center;gap:11px;flex-shrink:0;position:relative}
+.a-ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.a-nm{font-size:12px;font-weight:600}
+.a-sb{font-size:10px;color:var(--t2);margin-top:2px;font-family:'DM Mono',monospace}
+.a-vl{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;text-align:left;flex-shrink:0}
+body.en .a-vl{text-align:right}
+.a-cg{font-size:10px;font-family:'Outfit',sans-serif;margin-top:2px;text-align:left}
+body.en .a-cg{text-align:right}
+.a-del{position:absolute;top:7px;left:7px;width:19px;height:19px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--t3);cursor:pointer}
+body.en .a-del{right:7px;left:auto}
+.a-del:hover{background:var(--roseA);color:var(--rose)}
+.add-af{margin:0 14px 12px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);padding:16px;flex-shrink:0;display:none}
+.add-af.open{display:block;animation:fadeUp .22s ease}
+.atype-g{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}
+.atype{padding:11px 4px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .18s}
+.atype.sel{border-color:var(--gold);background:var(--goldA)}
+.ati{font-size:20px}
+.atl{font-size:9px;color:var(--t2);font-weight:500;text-align:center;transition:color .18s}
+.atype.sel .atl{color:var(--gold)}
+.sub-opts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px}
+.sopt{padding:5px 11px;border-radius:8px;font-size:10px;font-weight:600;background:var(--bg3);border:1px solid var(--bd);cursor:pointer;transition:all .18s;font-family:'Outfit',sans-serif}
+.sopt.sel{background:var(--goldA);border-color:var(--gold);color:var(--gold)}
+.live-note{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2);margin-bottom:11px;padding:7px 11px;background:var(--bg2);border-radius:9px}
+.frow2{display:flex;gap:8px;margin-top:6px}
+.btn-cancel{flex:1;padding:12px;border-radius:var(--r2);background:var(--bg3);color:var(--t2);font-size:12px;font-weight:600;font-family:inherit}
+.add-btn{margin:0 14px 12px;padding:12px;border-radius:var(--r2);border:1.5px dashed rgba(201,168,76,.25);background:var(--goldA);display:flex;align-items:center;justify-content:center;gap:7px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;font-family:inherit}
+
+/* ── INSIGHTS ── */
+.kpi-g{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px;margin-bottom:12px;flex-shrink:0}
+.kpi{padding:13px;border-radius:var(--r3);background:var(--bg1);border:1px solid var(--bd)}
+.kpi-l{font-size:10px;color:var(--t2);margin-bottom:3px;font-weight:500}
+.kpi-v{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;margin-bottom:2px}
+.kpi-s{font-size:10px;font-weight:600}
+.chart-c{margin:0 14px 11px;padding:15px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);flex-shrink:0}
+.c-ttl{font-size:12px;font-weight:700;margin-bottom:13px}
+.bar-ch{display:flex;align-items:flex-end;height:90px}
+.bar-g{display:flex;flex-direction:column;align-items:center;flex:1}
+.bar-p{display:flex;gap:2px;align-items:flex-end;height:74px;width:100%;justify-content:center}
+.bar{width:11px;border-radius:3px 3px 0 0;min-height:2px;cursor:pointer;position:relative;transition:height .5s cubic-bezier(.4,0,.2,1)}
+.bar::after{content:attr(data-t);position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--bg4);border:1px solid var(--bd2);border-radius:6px;padding:2px 6px;font-size:9px;font-family:'DM Mono',monospace;color:var(--t1);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:10}
+.bar:hover::after{opacity:1}
+.bar-lbl{font-size:8px;color:var(--t3);margin-top:4px;font-family:'Outfit',sans-serif}
+.c-leg{display:flex;gap:12px;margin-top:9px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t2)}
+.lg-d{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.exp-tbl{width:100%;border-collapse:collapse;margin-top:10px}
+.exp-tbl th{font-size:9px;color:var(--t2);font-weight:600;padding:4px 5px;text-align:right;border-bottom:1px solid var(--bd)}
+body.en .exp-tbl th{text-align:left}
+.exp-tbl td{font-size:11px;padding:7px 5px;border-bottom:1px solid rgba(255,255,255,.02)}
+.exp-cat-d{display:flex;align-items:center;gap:6px}
+.exp-col{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ebw{width:54px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.ebf{height:100%;border-radius:2px}
+.eamt{font-family:'DM Mono',monospace;font-weight:600;text-align:left}
+body.en .eamt{text-align:right}
+.hlth-card{margin:0 14px 11px;padding:15px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);display:flex;align-items:center;gap:14px;flex-shrink:0}
+.h-ring{position:relative;width:76px;height:76px;flex-shrink:0}
+.h-ring svg{width:76px;height:76px}
+.h-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.h-sc{font-family:'DM Mono',monospace;font-size:19px;font-weight:500}
+.h-sb{font-size:8px;color:var(--t2)}
+.hf-r{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.hf-r:last-child{margin-bottom:0}
+.hfl{font-size:10px;color:var(--t2);width:54px;flex-shrink:0}
+.hfbw{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.hfbf{height:100%;border-radius:2px}
+.hfv{font-size:9px;font-family:'DM Mono',monospace;width:26px;text-align:left;flex-shrink:0}
+body.en .hfv{text-align:right}
+.rec-c{margin:0 14px 9px;padding:14px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);display:flex;align-items:flex-start;gap:11px;flex-shrink:0;position:relative;overflow:hidden}
+.rec-bar{position:absolute;top:0;right:0;width:3px;height:100%}
+body.en .rec-bar{right:auto;left:0}
+.rec-iw{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.rec-ttl{font-size:11px;font-weight:700;margin-bottom:3px}
+.rec-bdy{font-size:10px;color:var(--t2);line-height:1.55;margin-bottom:5px}
+.rec-act{font-size:10px;font-weight:600;cursor:pointer}
+.bud-card{margin:0 14px 11px;padding:15px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);flex-shrink:0}
+.bud-r{margin-bottom:9px}
+.bud-h{display:flex;justify-content:space-between;margin-bottom:4px}
+.bud-nm{font-size:11px;color:var(--t2)}
+.bud-nums{font-size:10px;font-family:'DM Mono',monospace}
+.bud-bw{height:5px;background:var(--bg4);border-radius:2.5px;overflow:hidden}
+.bud-bf{height:100%;border-radius:2.5px}
+.bud-w{font-size:9px;margin-top:2px;text-align:left}
+body.en .bud-w{text-align:right}
+.bud-alert{margin-top:10px;padding:7px 11px;background:var(--roseA);border-radius:9px;font-size:10px;color:var(--rose)}
+
+/* ── SERVICES ── */
+.itabs{padding:0 14px;margin-bottom:14px;display:flex;flex-shrink:0;border-bottom:1px solid var(--bd)}
+.itab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.itab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tbc{display:none}
+.tbc.active{display:block}
+.svc-lbl{padding:3px 14px 9px;font-size:10px;color:var(--t2);font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.sbdg{font-size:9px;padding:2px 8px;border-radius:6px;font-weight:700}
+.loan-c{margin:0 14px 11px;padding:15px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);flex-shrink:0}
+.loan-h{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.loan-i{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.loan-nm{font-size:13px;font-weight:700}
+.loan-sb{font-size:10px;color:var(--t2);margin-top:1px}
+.loan-rt{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;flex-shrink:0;text-align:left}
+body.en .loan-rt{text-align:right}
+.ldiv{height:1px;background:var(--bd);margin-bottom:9px}
+.ins-c2{margin:0 14px 9px;padding:13px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.ins-i2{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.ins-st{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px}
+.ins-sug{margin:0 14px 9px;padding:13px;background:rgba(232,160,32,.05);border:1px solid rgba(232,160,32,.13);border-radius:var(--r3);flex-shrink:0}
+.ins-sug-t{font-size:11px;font-weight:700;color:var(--amber);margin-bottom:7px}
+.ins-sug-r{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid rgba(255,255,255,.04)}
+.inv-c{margin:0 14px 11px;padding:14px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);flex-shrink:0}
+.inv-h{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.inv-i{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.inv-nm{font-size:12px;font-weight:700}
+.inv-sb{font-size:10px;color:var(--t2);margin-top:1px}
+.inv-pr{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;text-align:left;flex-shrink:0}
+body.en .inv-pr{text-align:right}
+.daily-g{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:0 14px;margin-bottom:13px;flex-shrink:0}
+.daily-it{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+.daily-ico{width:52px;height:52px;border-radius:17px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--bd);transition:all .18s}
+.daily-it:active .daily-ico{transform:scale(.9);border-color:var(--gold)}
+.daily-lbl{font-size:10px;color:var(--t2);font-weight:500;text-align:center}
+
+/* ── PROFILE ── */
+.prof-av-wrap{padding:24px 18px 18px;display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.prof-av{width:76px;height:76px;border-radius:24px;background:linear-gradient(135deg,var(--goldL),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:#0A0600;position:relative;cursor:pointer}
+.av-edit{position:absolute;bottom:-4px;left:-4px;width:22px;height:22px;border-radius:7px;background:var(--bg2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px}
+body.en .av-edit{right:-4px;left:auto}
+.prof-nm{font-size:19px;font-weight:700;margin-top:11px}
+.prof-em{font-size:12px;color:var(--t2);margin-top:2px}
+.prof-bdg{margin-top:7px;padding:2px 11px;border-radius:9px;background:var(--violetA);border:1px solid rgba(168,123,240,.18);font-size:10px;font-weight:700;color:var(--violet)}
+.psec{margin:0 14px 11px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);overflow:hidden;flex-shrink:0}
+.psec-hd{padding:13px 14px 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.psec-ttl{font-size:12px;font-weight:700}
+.psec-act{font-size:11px;color:var(--gold);cursor:pointer}
+.prow{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.025)}
+.prow:last-child{border-bottom:none}
+.plbl{font-size:11px;color:var(--t2)}
+.pval{font-size:12px;font-weight:500}
+.pval.g{color:var(--mint)}.pval.r{color:var(--rose)}.pval.go{color:var(--gold)}
+.be-row{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.025)}
+.be-row:last-child{border-bottom:none}
+.be-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.be-nm{font-size:11px;font-weight:600}
+.be-v{font-size:11px;color:var(--t2);font-family:'DM Mono',monospace;cursor:pointer;border-bottom:1px dotted var(--t3)}
+.be-bw{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.be-bf{height:100%;border-radius:2px}
+.be-sum{padding:11px 14px;background:var(--bg2);display:flex;justify-content:space-between;font-size:11px}
+.tgl-wrap{display:flex;align-items:center;gap:9px}
+.tgl{position:relative;width:42px;height:22px;cursor:pointer}
+.tgl input{opacity:0;width:0;height:0}
+.tgl-s{position:absolute;inset:0;background:var(--bg4);border-radius:11px;transition:.28s}
+.tgl-s::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:var(--t2);border-radius:50%;transition:.28s}
+.tgl input:checked+.tgl-s{background:var(--mint)}
+.tgl input:checked+.tgl-s::before{transform:translateX(20px);background:var(--bg0)}
+.danger-btn{margin:0 14px 11px;padding:13px;border-radius:var(--r2);background:rgba(232,64,64,.06);border:1px solid rgba(232,64,64,.14);color:var(--rose);font-size:12px;font-weight:600;cursor:pointer;width:calc(100% - 28px);text-align:center;font-family:inherit;flex-shrink:0}
+
+/* ── MODALS ── */
+.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);display:none;align-items:flex-end;backdrop-filter:blur(6px)}
+.ov.open{display:flex;animation:ovIn .18s}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.msheet{width:100%;background:var(--bg1);border:1px solid var(--bd2);border-radius:26px 26px 0 0;padding:16px 18px calc(26px + var(--safe-b));animation:shUp .3s cubic-bezier(.34,1.56,.64,1);max-height:84vh;overflow-y:auto}
+@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mh{width:34px;height:4px;background:var(--bg4);border-radius:2px;margin:0 auto 14px}
+.mttl{font-size:17px;font-weight:800;margin-bottom:14px}
+
+/* transfer banks */
+.tr-banks{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:13px}
+.tr-bk{padding:9px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r1);text-align:center;cursor:pointer;transition:all .18s}
+.tr-bk.sel{border-color:var(--gold);background:var(--goldA)}
+.tr-bi{width:30px;height:30px;border-radius:8px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center}
+.tr-bl{font-size:10px;color:var(--t2)}
+.tr-bk.sel .tr-bl{color:var(--gold)}
+
+/* toast */
+.toast{position:fixed;bottom:calc(82px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(14px);background:var(--bg4);border:1px solid var(--bd2);border-radius:50px;padding:8px 18px;font-size:12px;font-weight:500;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── NAV ── */
+.bnav{height:calc(60px + var(--safe-b));background:var(--bg1);border-top:1px solid var(--bd);display:flex;align-items:flex-start;padding-top:7px;flex-shrink:0;position:relative;z-index:10}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:1px 0;position:relative}
+.ni svg{width:20px;height:20px;stroke:var(--t3);fill:none;stroke-width:1.8;transition:stroke .22s}
+.ni span{font-size:9px;color:var(--t3);font-weight:500;transition:color .22s}
+.ni.active svg{stroke:var(--gold)}
+.ni.active span{color:var(--gold)}
+.npip2{position:absolute;bottom:0;width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:0;transition:opacity .22s}
+.ni.active .npip2{opacity:1}
+</style>
+<body class="lang-fa">
+<div class="mesh"><div class="m1"></div><div class="m2"></div></div>
+
+<!-- LANG SELECT -->
+<div id="s-lang" class="screen active">
+  <div class="lang-wrap">
+    <div class="nxs-logo"><svg width="32" height="32" viewBox="0 0 40 40" fill="none"><rect x="10" y="8" width="5" height="24" rx="2" fill="#0A0600"/><rect x="25" y="8" width="5" height="24" rx="2" fill="#0A0600"/><path d="M12 10 L28 30" stroke="#0A0600" stroke-width="4" stroke-linecap="round"/></svg></div>
+    <div class="brand">NEXUS</div>
+    <div class="brand-tag">AI FINANCIAL PLATFORM</div>
+    <div class="lang-q">Choose language / زبان را انتخاب کنید</div>
+    <div class="lang-cards">
+      <div class="lang-card" onclick="A.lang('fa')"><div class="lang-flag">🇮🇷</div><div class="lang-name" style="font-family:'Vazirmatn',sans-serif">فارسی</div><div class="lang-sub">Persian · RTL</div></div>
+      <div class="lang-card" onclick="A.lang('en')"><div class="lang-flag">🌐</div><div class="lang-name" style="font-family:'Outfit',sans-serif">English</div><div class="lang-sub">International · LTR</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARD -->
+<div id="s-ob" class="screen">
+  <div class="ob-scroll">
+    <div class="ob-top">
+      <div class="ob-logo"><svg width="18" height="18" viewBox="0 0 40 40" fill="none"><rect x="10" y="8" width="5" height="24" rx="2" fill="#0A0600"/><rect x="25" y="8" width="5" height="24" rx="2" fill="#0A0600"/><path d="M12 10 L28 30" stroke="#0A0600" stroke-width="4" stroke-linecap="round"/></svg></div>
+      <div class="ob-brand">NEXUS</div>
+    </div>
+    <div class="ob-steps"><div class="ob-dot active" id="od1"></div><div class="ob-dot" id="od2"></div><div class="ob-dot" id="od3"></div><div class="ob-dot" id="od4"></div></div>
+    <div class="ob-body">
+      <!-- Step 1 -->
+      <div class="ob-step active" id="os1">
+        <div class="step-eye" data-fa="مرحله ۱ از ۴" data-en="STEP 1 OF 4"></div>
+        <div class="step-ttl" data-fa="پروفایل مالی" data-en="Financial Profile"></div>
+        <div class="step-dsc" data-fa="اطلاعات پایه برای تحلیل دقیق‌تر هوش مصنوعی." data-en="Basic info for more accurate AI analysis."></div>
+        <div class="f"><label class="fl" data-fa="نام شما" data-en="Your Name"></label><input class="fi" id="ob-name" type="text" autocomplete="off"></div>
+        <div class="f"><label class="fl" data-fa="درآمد ماهانه (تومان)" data-en="Monthly Income (Toman)"></label><input class="fi" id="ob-inc" type="number" inputmode="numeric"></div>
+        <div class="f"><label class="fl" data-fa="هزینه ماهانه تقریبی (تومان)" data-en="Approx Monthly Expenses (Toman)"></label><input class="fi" id="ob-exp" type="number" inputmode="numeric"></div>
+      </div>
+      <!-- Step 2 -->
+      <div class="ob-step" id="os2">
+        <div class="step-eye" data-fa="مرحله ۲ از ۴" data-en="STEP 2 OF 4"></div>
+        <div class="step-ttl" data-fa="بودجه‌بندی" data-en="Budget Allocation"></div>
+        <div class="step-dsc" data-fa="هزینه ماهانه‌ات را تقسیم‌بندی کن." data-en="Split your monthly expenses."></div>
+        <div id="ob-bud-fields"></div>
+        <div class="f">
+          <label class="fl" data-fa="+ دسته جدید" data-en="+ New Category"></label>
+          <div style="display:flex;gap:7px">
+            <input class="fi" id="ob-cname" type="text" style="flex:1" data-pfa="نام" data-pen="Name">
+            <input class="fi" id="ob-camt" type="number" inputmode="numeric" style="width:120px;font-family:'DM Mono',monospace" data-pfa="مبلغ" data-pen="Amount">
+            <button onclick="A.addCat()" style="padding:0 13px;background:var(--goldA);border:1px solid rgba(201,168,76,.25);border-radius:var(--r1);color:var(--gold);font-size:17px;cursor:pointer">+</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;padding:8px 12px;background:var(--bg2);border-radius:var(--r1);margin-bottom:8px">
+          <span data-fa="تخصیص:" data-en="Allocated:"></span><span id="ob-alloc" style="color:var(--gold);font-family:'DM Mono',monospace">0</span>
+          <span data-fa="باقی:" data-en="Left:"></span><span id="ob-left" style="color:var(--mint);font-family:'DM Mono',monospace">0</span>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div class="ob-step" id="os3">
+        <div class="step-eye" data-fa="مرحله ۳ از ۴" data-en="STEP 3 OF 4"></div>
+        <div class="step-ttl" data-fa="بانک‌های من" data-en="My Banks"></div>
+        <div class="step-dsc" data-fa="بانک‌هایی که حساب دارید را انتخاب کنید." data-en="Select your banks."></div>
+        <div class="bank-grid">
+          <div class="bchip" data-b="mellat" onclick="A.togB(this)"><div class="bico" style="background:linear-gradient(135deg,#1565C0,#0A3A8A)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="blbl" data-fa="ملت" data-en="Mellat"></div></div>
+          <div class="bchip" data-b="melli" onclick="A.togB(this)"><div class="bico" style="background:linear-gradient(135deg,#B71C1C,#7F0000)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="blbl" data-fa="ملی" data-en="Melli"></div></div>
+          <div class="bchip" data-b="saderat" onclick="A.togB(this)"><div class="bico" style="background:linear-gradient(135deg,#1B5E20,#004D00)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="blbl" data-fa="صادرات" data-en="Saderat"></div></div>
+          <div class="bchip" data-b="tejarat" onclick="A.togB(this)"><div class="bico" style="background:linear-gradient(135deg,#E65100,#BF360C)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="blbl" data-fa="تجارت" data-en="Tejarat"></div></div>
+          <div class="bchip" data-b="pasargad" onclick="A.togB(this)"><div class="bico" style="background:linear-gradient(135deg,#4A148C,#1A0050)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="blbl" data-fa="پاسارگاد" data-en="Pasargad"></div></div>
+          <div class="bchip" data-b="parsian" onclick="A.togB(this)"><div class="bico" style="background:linear-gradient(135deg,#006064,#004D40)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="blbl" data-fa="پارسیان" data-en="Parsian"></div></div>
+        </div>
+      </div>
+      <!-- Step 4 -->
+      <div class="ob-step" id="os4">
+        <div class="step-eye" data-fa="مرحله ۴ از ۴" data-en="STEP 4 OF 4"></div>
+        <div class="step-ttl" data-fa="دارایی‌های اولیه" data-en="Initial Assets"></div>
+        <div class="step-opt" data-fa="اختیاری — بعداً قابل ویرایش" data-en="Optional — editable anytime"></div>
+        <div class="f"><label class="fl" data-fa="موجودی نقد (تومان)" data-en="Cash Balance (Toman)"></label><input class="fi" id="ob-irt" type="number" inputmode="numeric" placeholder="0"></div>
+        <div class="frow"><div class="f"><label class="fl">USD $</label><input class="fi" id="ob-usd" type="number" inputmode="decimal" placeholder="0"></div><div class="f"><label class="fl">EUR €</label><input class="fi" id="ob-eur" type="number" inputmode="decimal" placeholder="0"></div></div>
+        <div class="frow"><div class="f"><label class="fl">Bitcoin ₿</label><input class="fi" id="ob-btc" type="number" inputmode="decimal" placeholder="0"></div><div class="f"><label class="fl">Ethereum Ξ</label><input class="fi" id="ob-eth" type="number" inputmode="decimal" placeholder="0"></div></div>
+        <div class="f"><label class="fl" data-fa="طلا / ملک / سایر (تومان)" data-en="Gold / Property / Other (Toman)"></label><input class="fi" id="ob-oth" type="number" inputmode="numeric" placeholder="0"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ob-foot">
+    <button class="btn-back" id="ob-back" onclick="A.obBack()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button class="btn-gold" id="ob-nxt" onclick="A.obNext()"><span data-fa="ادامه" data-en="Continue"></span></button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="s-app" class="screen">
+  <div class="pages">
+
+    <!-- HOME -->
+    <div class="page active" id="p-home">
+      <div class="tb">
+        <div class="tb-l"><div class="eye" id="greet"></div><div class="ttl" id="uname">NEXUS</div></div>
+        <div class="tb-r">
+          <div class="ltog" id="ltog" onclick="A.togLang()">EN</div>
+          <div class="ico-btn" onclick="A.openM('m-settings')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
+          <div class="ico-btn" onclick="A.toast(L('اعلانی وجود ندارد','No new notifications'))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="npip"></div></div>
+          <div class="av" id="hav" onclick="A.goPage('profile')">N</div>
+        </div>
+      </div>
+      <!-- Balance card -->
+      <div class="bal-card">
+        <div class="bc-shine"></div><div class="bc-grid"></div><div class="bc-glow"></div>
+        <div class="bc-lbl"><div class="ldot"></div><span data-fa="موجودی کل دارایی‌ها" data-en="Total Net Worth"></span></div>
+        <div class="bc-amt" id="bc-amt">0 <span class="bc-unit" data-fa="تومان" data-en="T"></span></div>
+        <div class="bc-chg" id="bc-chg">—</div>
+        <div class="bc-div"></div>
+        <div class="bc-stats">
+          <div class="bc-st"><div class="bc-sl" data-fa="درآمد" data-en="Income"></div><div class="bc-sv" id="bc-inc" style="color:var(--mint)">—</div></div>
+          <div class="bc-st"><div class="bc-sl" data-fa="هزینه" data-en="Expenses"></div><div class="bc-sv" id="bc-exp" style="color:var(--rose)">—</div></div>
+          <div class="bc-st"><div class="bc-sl" data-fa="پس‌انداز" data-en="Savings"></div><div class="bc-sv" id="bc-sav" style="color:var(--gold)">—</div></div>
+        </div>
+      </div>
+      <!-- Mix -->
+      <div class="sec"><div class="sec-t" data-fa="ترکیب دارایی‌ها" data-en="Asset Mix"></div><div class="sec-a" onclick="A.goPage('wealth')" data-fa="جزئیات ←" data-en="Details ←"></div></div>
+      <div class="mix-card" id="home-mix"></div>
+      <!-- Quick -->
+      <div class="sec" style="margin-top:6px"><div class="sec-t" data-fa="دسترسی سریع" data-en="Quick Actions"></div></div>
+      <div class="qa-row">
+        <div class="qa" onclick="A.openM('m-tr')"><div class="qa-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div><div class="qa-lbl" data-fa="انتقال" data-en="Transfer"></div></div>
+        <div class="qa" onclick="A.toast(L('پرداخت قبض','Bill Pay'))"><div class="qa-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="qa-lbl" data-fa="قبض" data-en="Bills"></div></div>
+        <div class="qa" onclick="A.toast(L('شارژ موبایل','Mobile Top-up'))"><div class="qa-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div><div class="qa-lbl" data-fa="شارژ" data-en="Top Up"></div></div>
+        <div class="qa" onclick="A.goPage('services',{tab:'ins'})"><div class="qa-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7z"/></svg></div><div class="qa-lbl" data-fa="بیمه" data-en="Insurance"></div></div>
+        <div class="qa" onclick="A.goPage('services',{tab:'loan'})"><div class="qa-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="qa-lbl" data-fa="وام" data-en="Loans"></div></div>
+      </div>
+      <!-- Insights -->
+      <div class="sec"><div class="sec-t" data-fa="✦ توصیه‌های نکسوس" data-en="✦ Nexus Insights"></div><div class="sec-a" onclick="A.goPage('insights')" data-fa="همه ←" data-en="Full ←"></div></div>
+      <div class="ins-strip" id="home-ins"></div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="page" id="p-accounts">
+      <div class="tb"><div class="tb-l"><div class="eye" data-fa="مدیریت" data-en="Management"></div><div class="ttl" data-fa="حساب‌های بانکی" data-en="Bank Accounts"></div></div><div class="tb-r"><div class="av" id="aav" onclick="A.goPage('profile')">N</div></div></div>
+      <div style="padding:0 14px;margin-bottom:12px;display:flex;gap:6px;overflow-x:auto;flex-shrink:0">
+        <div id="f-all" onclick="A.filt('all',this)" style="padding:5px 13px;border-radius:18px;background:var(--gold);color:#0A0600;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0" data-fa="همه" data-en="All"></div>
+        <div id="f-in" onclick="A.filt('in',this)" style="padding:5px 13px;border-radius:18px;background:var(--bg2);border:1px solid var(--bd);color:var(--t2);font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0" data-fa="دریافتی" data-en="Income"></div>
+        <div id="f-out" onclick="A.filt('out',this)" style="padding:5px 13px;border-radius:18px;background:var(--bg2);border:1px solid var(--bd);color:var(--t2);font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0" data-fa="پرداختی" data-en="Expense"></div>
+      </div>
+      <div style="margin:0 14px 12px;padding:12px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+        <div><div style="font-size:9px;color:var(--t2);margin-bottom:2px" data-fa="مجموع موجودی" data-en="Total Balance"></div><div style="font-size:15px;font-weight:700;font-family:'DM Mono',monospace" id="tot-bal">—</div></div>
+        <div style="font-size:10px;color:var(--mint)" id="bal-chg">—</div>
+      </div>
+      <div id="acc-list"></div>
+      <div onclick="A.toast(L('بزودی...','Coming soon...'))" style="margin:0 14px 12px;padding:12px;border-radius:var(--r2);border:1.5px dashed rgba(201,168,76,.2);background:var(--goldA);display:flex;align-items:center;justify-content:center;gap:7px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span data-fa="افزودن حساب" data-en="Add Account"></span>
+      </div>
+      <div class="sec"><div class="sec-t" data-fa="صندوق‌ها" data-en="Funds & Deposits"></div></div>
+      <div id="fund-list"></div>
+    </div>
+
+    <!-- WEALTH -->
+    <div class="page" id="p-wealth">
+      <div class="tb"><div class="tb-l"><div class="eye" data-fa="سبد دارایی" data-en="Portfolio"></div><div class="ttl" data-fa="دارایی‌های من" data-en="My Wealth"></div></div>
+        <div class="tb-r"><div style="padding:3px 9px;background:var(--mintA);border-radius:7px;font-size:9px;font-weight:700;color:var(--mint);font-family:'Outfit',sans-serif">● LIVE</div>
+          <div class="ico-btn" onclick="A.fetchP()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.03-6.32"/></svg></div>
+        </div>
+      </div>
+      <div class="w-hero"><div class="w-lbl" data-fa="ارزش خالص کل" data-en="Total Net Worth"></div><div class="w-val" id="w-tot">—</div><div class="w-stats" id="w-stats"></div></div>
+      <div class="sec"><div class="sec-t" data-fa="قیمت زنده" data-en="Live Prices"></div></div>
+      <div class="tick-row" id="tick-row"></div>
+      <div class="sec"><div class="sec-t" data-fa="دارایی‌ها" data-en="Assets"></div><div class="sec-a" onclick="A.togAF()" data-fa="+ افزودن" data-en="+ Add"></div></div>
+      <!-- Add asset form -->
+      <div class="add-af" id="add-af">
+        <div style="font-size:13px;font-weight:700;margin-bottom:13px" data-fa="افزودن دارایی جدید" data-en="Add New Asset"></div>
+        <div class="atype-g">
+          <div class="atype sel" data-t="re" onclick="A.selAt(this)"><div class="ati">🏠</div><div class="atl" data-fa="ملک" data-en="Property"></div></div>
+          <div class="atype" data-t="ve" onclick="A.selAt(this)"><div class="ati">🚗</div><div class="atl" data-fa="خودرو" data-en="Vehicle"></div></div>
+          <div class="atype" data-t="gj" onclick="A.selAt(this)"><div class="ati">🥇</div><div class="atl" data-fa="طلا" data-en="Gold"></div></div>
+          <div class="atype" data-t="cr" onclick="A.selAt(this)"><div class="ati">₿</div><div class="atl" data-fa="کریپتو" data-en="Crypto"></div></div>
+          <div class="atype" data-t="fx" onclick="A.selAt(this)"><div class="ati">💵</div><div class="atl" data-fa="ارز" data-en="Forex"></div></div>
+          <div class="atype" data-t="st" onclick="A.selAt(this)"><div class="ati">📈</div><div class="atl" data-fa="سهام" data-en="Stocks"></div></div>
+          <div class="atype" data-t="dp" onclick="A.selAt(this)"><div class="ati">🏦</div><div class="atl" data-fa="سپرده" data-en="Deposit"></div></div>
+          <div class="atype" data-t="ot" onclick="A.selAt(this)"><div class="ati">📦</div><div class="atl" data-fa="سایر" data-en="Other"></div></div>
+        </div>
+        <div class="sub-opts" id="af-subs"></div>
+        <div class="live-note" id="af-live"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="var(--mint)"/></svg><span data-fa="قیمت زنده خودکار" data-en="Live price auto-fetched"></span></div>
+        <div class="f"><label class="fl" id="af-lbl" data-fa="ارزش (تومان)" data-en="Value (Toman)"></label><input class="fi" id="af-val" type="number" inputmode="numeric" placeholder="0"></div>
+        <div class="f" id="af-qty-w" style="display:none"><label class="fl" id="af-qlbl">Qty</label><input class="fi" id="af-qty" type="number" inputmode="decimal" step="any" placeholder="0" style="font-family:'DM Mono',monospace"></div>
+        <div class="f"><label class="fl" data-fa="توضیح (اختیاری)" data-en="Description (optional)"></label><input class="fi" id="af-desc" type="text"></div>
+        <div class="frow2"><button class="btn-cancel" onclick="A.togAF()"><span data-fa="انصراف" data-en="Cancel"></span></button><button class="btn-gold" onclick="A.saveAsset()" style="flex:1.5"><span data-fa="ذخیره ✓" data-en="Save ✓"></span></button></div>
+      </div>
+      <div id="asset-list"></div>
+      <div class="add-btn" onclick="A.togAF()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span data-fa="افزودن دارایی جدید" data-en="Add New Asset"></span></div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="page" id="p-insights">
+      <div class="tb"><div class="tb-l"><div class="eye" data-fa="گزارش مالی" data-en="Financial Report"></div><div class="ttl" data-fa="تحلیل نکسوس" data-en="Nexus Analysis"></div></div>
+        <div class="tb-r"><div style="display:flex;background:var(--bg2);border:1px solid var(--bd);border-radius:11px;overflow:hidden">
+          <div id="per-m" onclick="A.setPer('m',this)" style="padding:5px 10px;font-size:10px;font-weight:600;cursor:pointer;background:var(--gold);color:#0A0600" data-fa="ماه" data-en="Month"></div>
+          <div id="per-3" onclick="A.setPer('3',this)" style="padding:5px 10px;font-size:10px;font-weight:600;cursor:pointer;color:var(--t2)" data-fa="۳ ماه" data-en="3M"></div>
+          <div id="per-y" onclick="A.setPer('y',this)" style="padding:5px 10px;font-size:10px;font-weight:600;cursor:pointer;color:var(--t2)" data-fa="سال" data-en="Year"></div>
+        </div></div>
+      </div>
+      <!-- Health -->
+      <div class="hlth-card">
+        <div class="h-ring"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="30" fill="none" stroke="var(--bg3)" stroke-width="8"/><circle id="h-ring" cx="38" cy="38" r="30" fill="none" stroke-width="8" stroke-dasharray="0 188" transform="rotate(-90 38 38)" stroke-linecap="round"/></svg><div class="h-ctr"><div class="h-sc" id="h-sc">—</div><div class="h-sb">/100</div></div></div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;margin-bottom:9px" id="h-lbl">—</div>
+          <div class="hf-r"><div class="hfl" data-fa="پس‌انداز" data-en="Savings"></div><div class="hfbw"><div class="hfbf" id="hf-sr" style="background:var(--mint)"></div></div><div class="hfv" id="hf-srv" style="color:var(--mint)">—</div></div>
+          <div class="hf-r"><div class="hfl" data-fa="تنوع" data-en="Diversity"></div><div class="hfbw"><div class="hfbf" id="hf-dv" style="background:var(--amber)"></div></div><div class="hfv" id="hf-dvv" style="color:var(--amber)">—</div></div>
+          <div class="hf-r"><div class="hfl" data-fa="نقدینگی" data-en="Liquidity"></div><div class="hfbw"><div class="hfbf" id="hf-lq" style="background:var(--blue)"></div></div><div class="hfv" id="hf-lqv" style="color:var(--blue)">—</div></div>
+        </div>
+      </div>
+      <!-- KPIs -->
+      <div class="kpi-g">
+        <div class="kpi"><div class="kpi-l" data-fa="نرخ پس‌انداز" data-en="Savings Rate"></div><div class="kpi-v" id="kv-sr" style="color:var(--mint)">—</div><div class="kpi-s" id="ks-sr"></div></div>
+        <div class="kpi"><div class="kpi-l" data-fa="نسبت هزینه" data-en="Expense Ratio"></div><div class="kpi-v" id="kv-er" style="color:var(--rose)">—</div><div class="kpi-s" id="ks-er"></div></div>
+        <div class="kpi"><div class="kpi-l" data-fa="نسبت DTI" data-en="Debt-to-Income"></div><div class="kpi-v" style="color:var(--gold)">0%</div><div class="kpi-s" style="color:var(--mint)" data-fa="✓ بدون بدهی" data-en="✓ Debt-free"></div></div>
+        <div class="kpi"><div class="kpi-l" data-fa="پوشش اضطراری" data-en="Emergency Cover"></div><div class="kpi-v" id="kv-em" style="color:var(--amber)">—</div><div class="kpi-s" id="ks-em"></div></div>
+      </div>
+      <!-- Bar chart -->
+      <div class="chart-c"><div class="c-ttl" data-fa="درآمد · هزینه · پس‌انداز" data-en="Income · Expenses · Savings"></div><div class="bar-ch" id="bar-ch"></div><div class="c-leg"><div class="lg"><div class="lg-d" style="background:var(--gold)"></div><span data-fa="درآمد" data-en="Income"></span></div><div class="lg"><div class="lg-d" style="background:var(--rose)"></div><span data-fa="هزینه" data-en="Expenses"></span></div><div class="lg"><div class="lg-d" style="background:var(--mint)"></div><span data-fa="پس‌انداز" data-en="Savings"></span></div></div></div>
+      <!-- Expense table -->
+      <div class="chart-c"><div class="c-ttl" data-fa="ترکیب هزینه‌ها" data-en="Expense Breakdown"></div><table class="exp-tbl"><thead><tr><th data-fa="دسته" data-en="Category"></th><th data-fa="سهم" data-en="Share"></th><th data-fa="مبلغ" data-en="Amount"></th></tr></thead><tbody id="exp-tbody"></tbody></table></div>
+      <!-- Budget progress -->
+      <div class="bud-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px"><div style="font-size:12px;font-weight:700" data-fa="بودجه ماه جاری" data-en="Current Month Budget"></div><div style="font-size:10px;color:var(--t2)" id="bud-days"></div></div><div id="bud-bars"></div></div>
+      <!-- Recs — only here -->
+      <div class="sec"><div class="sec-t" data-fa="✦ توصیه‌های نکسوس" data-en="✦ Nexus Recommendations"></div></div>
+      <div id="rec-list"></div>
+      <div style="text-align:center;font-size:9px;color:var(--t4);padding:0 18px 12px" data-fa="این موارد صرفاً مشاهده هستند و مشاوره مالی محسوب نمی‌شوند." data-en="These are observations only, not financial advice."></div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="page" id="p-services">
+      <div class="tb"><div class="tb-l"><div class="eye" data-fa="خدمات مالی" data-en="Financial Services"></div><div class="ttl" data-fa="خدمات" data-en="Services"></div></div><div class="tb-r"><div class="av" id="sav" onclick="A.goPage('profile')">N</div></div></div>
+      <div class="itabs">
+        <div class="itab active" id="it-loan" onclick="A.svcTab('loan',this)" data-fa="وام" data-en="Loans"></div>
+        <div class="itab" id="it-ins" onclick="A.svcTab('ins',this)" data-fa="بیمه" data-en="Insurance"></div>
+        <div class="itab" id="it-inv" onclick="A.svcTab('inv',this)" data-fa="سرمایه‌گذاری" data-en="Invest"></div>
+        <div class="itab" id="it-daily" onclick="A.svcTab('daily',this)" data-fa="روزانه" data-en="Daily"></div>
+      </div>
+      <!-- LOAN -->
+      <div class="tbc active" id="tb-loan">
+        <div class="svc-lbl"><span data-fa="وام‌های فعلی" data-en="Active Loans"></span><span class="sbdg" style="background:var(--mintA);color:var(--mint)" data-fa="بدون بدهی ✓" data-en="Debt-free ✓"></span></div>
+        <div style="margin:0 14px 12px;padding:13px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);text-align:center"><div style="font-size:12px;color:var(--t2)" data-fa="در حال حاضر وام فعالی ندارید" data-en="No active loans at the moment"></div><div style="font-size:10px;color:var(--t3);margin-top:3px" data-fa="DTI: ۰٪ — اهلیت وام: بالا ✓" data-en="DTI: 0% — Eligibility: High ✓"></div></div>
+        <div class="svc-lbl"><span data-fa="پیشنهادات وام" data-en="Loan Offers"></span><span class="sbdg" style="background:var(--blueA);color:var(--blue)" data-fa="بر اساس پروفایل شما" data-en="Based on your profile"></span></div>
+        <div class="loan-c">
+          <div class="loan-h"><div class="loan-i" style="background:var(--roseA)">🏦</div><div><div class="loan-nm" data-fa="وام شخصی" data-en="Personal Loan"></div><div class="loan-sb" data-fa="تا ۵۰۰M · بدون ضامن · ۳۶ ماه" data-en="Up to 500M · No guarantor · 36mo"></div></div><div><div class="loan-rt" style="color:var(--rose)">24%</div><div style="font-size:8px;color:var(--t2);text-align:left" data-fa="سود سالانه" data-en="Annual rate"></div></div></div>
+          <div class="ldiv"></div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:9px;display:flex;justify-content:space-between"><span data-fa="قسط ۱۰۰M/۳۶ ماه:" data-en="Inst. 100M/36mo:"></span><span style="color:var(--t1);font-family:'DM Mono',monospace">۳,۸۰۰,۰۰۰ ت</span></div>
+          <div style="display:flex;gap:7px"><button class="btn-gold" style="flex:1;padding:10px" onclick="A.toast(L('درخواست ثبت شد','Request submitted'))"><span data-fa="درخواست وام" data-en="Apply Now"></span></button><button class="btn-sm btn-sm-h" onclick="A.openM('m-calc')"><span data-fa="محاسبه اقساط" data-en="Calculator"></span></button></div>
+        </div>
+        <div class="loan-c">
+          <div class="loan-h"><div class="loan-i" style="background:var(--goldA)">🏠</div><div><div class="loan-nm" data-fa="وام مسکن" data-en="Mortgage"></div><div class="loan-sb" data-fa="تا ۲ میلیارد · ۲۴۰ ماه" data-en="Up to 2B · 240 months"></div></div><div><div class="loan-rt" style="color:var(--gold)">18%</div><div style="font-size:8px;color:var(--t2);text-align:left" data-fa="سود سالانه" data-en="Annual rate"></div></div></div>
+          <div class="ldiv"></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:9px"><span data-fa="اهلیت: بررسی خودکار" data-en="Eligibility: Auto-check"></span><span style="color:var(--gold);cursor:pointer" onclick="A.toast(L('بزودی...','Coming soon...'))" data-fa="شرایط ←" data-en="Terms ←"></span></div>
+          <button class="btn-gold" style="width:100%;padding:10px" onclick="A.toast(L('بزودی...','Coming soon...'))"><span data-fa="بررسی اهلیت" data-en="Check Eligibility"></span></button>
+        </div>
+      </div>
+      <!-- INSURANCE -->
+      <div class="tbc" id="tb-ins">
+        <div class="svc-lbl"><span data-fa="بیمه‌های فعال" data-en="Active Policies"></span><span class="sbdg" style="background:var(--mintA);color:var(--mint)">2</span></div>
+        <div class="ins-c2"><div class="ins-i2" style="background:var(--blueA)">🚗</div><div style="flex:1"><div style="font-size:12px;font-weight:700" data-fa="بیمه خودرو — شخص ثالث" data-en="Car — Third Party"></div><div style="font-size:10px;color:var(--t2);margin-top:2px" data-fa="ایران · سررسید ۳ ماه دیگر" data-en="Iran · Renews in 3 months"></div></div><div><div class="ins-st" style="background:var(--mintA);color:var(--mint)" data-fa="فعال ✓" data-en="Active ✓"></div></div></div>
+        <div class="ins-c2"><div class="ins-i2" style="background:var(--mintA)">🏥</div><div style="flex:1"><div style="font-size:12px;font-weight:700" data-fa="بیمه درمان تکمیلی" data-en="Supplemental Health"></div><div style="font-size:10px;color:var(--t2);margin-top:2px" data-fa="دی · ۸ ماه دیگر" data-en="Dey · 8 months left"></div></div><div><div class="ins-st" style="background:var(--mintA);color:var(--mint)" data-fa="فعال ✓" data-en="Active ✓"></div></div></div>
+        <div class="ins-sug" id="ins-sug"></div>
+        <div class="svc-lbl"><span data-fa="سایر بیمه‌ها" data-en="Other Insurance"></span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px;margin-bottom:12px;flex-shrink:0">
+          <div onclick="A.toast(L('بزودی...','Coming soon...'))" style="padding:14px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);text-align:center;cursor:pointer"><div style="font-size:24px;margin-bottom:7px">🛡️</div><div style="font-size:11px;font-weight:600" data-fa="بیمه عمر" data-en="Life Insurance"></div><div style="font-size:10px;color:var(--gold);margin-top:4px" data-fa="مقایسه ←" data-en="Compare ←"></div></div>
+          <div onclick="A.toast(L('بزودی...','Coming soon...'))" style="padding:14px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);text-align:center;cursor:pointer"><div style="font-size:24px;margin-bottom:7px">🏢</div><div style="font-size:11px;font-weight:600" data-fa="بیمه مسئولیت" data-en="Liability"></div><div style="font-size:10px;color:var(--gold);margin-top:4px" data-fa="مقایسه ←" data-en="Compare ←"></div></div>
+        </div>
+      </div>
+      <!-- INVEST -->
+      <div class="tbc" id="tb-inv">
+        <div class="svc-lbl"><span data-fa="سرمایه‌گذاری" data-en="Investment Options"></span></div>
+        <div class="inv-c"><div class="inv-h"><div class="inv-i" style="background:var(--goldA)">🥇</div><div style="flex:1"><div class="inv-nm" data-fa="خرید طلای آنلاین" data-en="Buy Gold Online"></div><div class="inv-sb" data-fa="سکه · گرم ۱۸ عیار · زنده" data-en="Coin · 18K gram · Live"></div></div><div><div class="inv-pr" id="inv-gold" style="color:var(--gold)">—</div><div style="font-size:8px;color:var(--mint);text-align:left">↑ 8%</div></div></div><button class="btn-gold" style="width:100%;padding:10px" onclick="A.toast(L('بزودی...','Coming soon...'))"><span data-fa="خرید سکه طلا" data-en="Buy Gold"></span></button></div>
+        <div class="inv-c"><div class="inv-h"><div class="inv-i" style="background:var(--mintA)">📈</div><div style="flex:1"><div class="inv-nm" data-fa="صندوق طلای لوتوس" data-en="Lotus Gold Fund"></div><div class="inv-sb" data-fa="موجودی ۵۰M · سود روزانه" data-en="Balance 50M · Daily profit"></div></div><div><div class="inv-pr" style="color:var(--mint)">28%</div><div style="font-size:8px;color:var(--t2);text-align:left" data-fa="سالانه" data-en="Annual"></div></div></div><button class="btn-sm btn-sm-h" style="width:100%;padding:10px;text-align:center" onclick="A.toast(L('بزودی...','Coming soon...'))"><span data-fa="مدیریت صندوق" data-en="Manage Fund"></span></button></div>
+        <div class="inv-c"><div class="inv-h"><div class="inv-i" style="background:var(--violetA)">₿</div><div style="flex:1"><div class="inv-nm" data-fa="رمزارز — نوبیتکس" data-en="Crypto — Nobitex"></div><div class="inv-sb" id="btc-sub">BTC $65,420 · ↑ 2.4%</div></div><div><div class="inv-pr" id="inv-cr" style="color:var(--violet)">—</div><div style="font-size:8px;color:var(--t2);text-align:left" data-fa="موجودی" data-en="Balance"></div></div></div><button class="btn-sm btn-sm-h" style="width:100%;padding:10px;text-align:center" onclick="A.toast(L('بزودی...','Coming soon...'))"><span data-fa="ورود به کیف‌پول" data-en="Open Wallet"></span></button></div>
+      </div>
+      <!-- DAILY -->
+      <div class="tbc" id="tb-daily">
+        <div class="svc-lbl"><span data-fa="خدمات روزانه" data-en="Daily Services"></span></div>
+        <div class="daily-g">
+          <div class="daily-it" onclick="A.toast(L('پرداخت قبض','Bill Pay'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="daily-lbl" data-fa="قبض" data-en="Bills"></div></div>
+          <div class="daily-it" onclick="A.toast(L('شارژ','Top Up'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div><div class="daily-lbl" data-fa="شارژ" data-en="Top Up"></div></div>
+          <div class="daily-it" onclick="A.openM('m-tr')"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div><div class="daily-lbl" data-fa="انتقال" data-en="Transfer"></div></div>
+          <div class="daily-it" onclick="A.toast(L('اینترنت','Internet'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12h20"/></svg></div><div class="daily-lbl" data-fa="اینترنت" data-en="Internet"></div></div>
+          <div class="daily-it" onclick="A.toast(L('گاز','Gas'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="daily-lbl" data-fa="گاز و برق" data-en="Utilities"></div></div>
+          <div class="daily-it" onclick="A.toast(L('اقساط','Installments'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="daily-lbl" data-fa="اقساط" data-en="Installments"></div></div>
+          <div class="daily-it" onclick="A.toast(L('درگاه','Payment'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="daily-lbl" data-fa="درگاه آنلاین" data-en="Online Pay"></div></div>
+          <div class="daily-it" onclick="A.toast(L('بیشتر','More'))"><div class="daily-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></div><div class="daily-lbl" data-fa="بیشتر" data-en="More"></div></div>
+        </div>
+        <div style="margin:0 14px;padding:13px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r3);display:flex;align-items:center;gap:11px;cursor:pointer" onclick="A.toast(L('پشتیبانی','Support'))">
+          <div style="width:38px;height:38px;border-radius:12px;background:var(--blueA);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💬</div>
+          <div><div style="font-size:12px;font-weight:600" data-fa="پشتیبانی نکسوس" data-en="Nexus Support"></div><div style="font-size:10px;color:var(--t2);margin-top:1px" data-fa="چت · تماس · ایمیل" data-en="Chat · Call · Email"></div></div>
+          <div style="margin-right:auto;margin-left:0;font-size:11px;color:var(--gold)" data-fa="شروع ←" data-en="Start ←"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="p-profile">
+      <div class="tb" style="padding-bottom:6px"><div class="tb-l"><div class="ttl" data-fa="پروفایل" data-en="Profile"></div></div><div class="tb-r"><div class="ltog" id="ltog2" onclick="A.togLang()">EN</div></div></div>
+      <div class="prof-av-wrap">
+        <div class="prof-av" id="pav" onclick="A.toast(L('تغییر تصویر','Change photo'))"><span id="pav-l">N</span><div class="av-edit">✎</div></div>
+        <div class="prof-nm" id="p-name">—</div>
+        <div class="prof-em">nexus@app.ir</div>
+        <div class="prof-bdg" data-fa="✦ عضو نکسوس" data-en="✦ Nexus Member"></div>
+      </div>
+      <!-- Personal -->
+      <div class="psec">
+        <div class="psec-hd"><div class="psec-ttl" data-fa="اطلاعات شخصی" data-en="Personal Info"></div><div class="psec-act" onclick="A.openM('m-ep')" data-fa="ویرایش" data-en="Edit"></div></div>
+        <div class="prow"><div class="plbl" data-fa="نام" data-en="Name"></div><div class="pval" id="pp-nm">—</div></div>
+        <div class="prow"><div class="plbl" data-fa="موبایل" data-en="Mobile"></div><div class="pval" style="font-family:'DM Mono',monospace">09121234567</div></div>
+        <div class="prow"><div class="plbl" data-fa="کد ملی" data-en="National ID"></div><div style="display:flex;align-items:center;gap:7px"><div class="pval" style="font-family:'DM Mono',monospace">***1</div><div style="font-size:8px;padding:2px 6px;border-radius:5px;background:var(--mintA);color:var(--mint);font-weight:700" data-fa="تأیید" data-en="Verified">✓</div></div></div>
+      </div>
+      <!-- Finance -->
+      <div class="psec">
+        <div class="psec-hd"><div class="psec-ttl" data-fa="درآمد و هزینه" data-en="Income & Expenses"></div><div class="psec-act" onclick="A.openM('m-ef')" data-fa="ویرایش" data-en="Edit"></div></div>
+        <div class="prow"><div class="plbl" data-fa="درآمد ماهانه" data-en="Monthly Income"></div><div class="pval g" id="pp-inc">—</div></div>
+        <div class="prow"><div class="plbl" data-fa="هزینه ماهانه" data-en="Monthly Expenses"></div><div class="pval r" id="pp-exp">—</div></div>
+        <div class="prow"><div class="plbl" data-fa="پس‌انداز" data-en="Savings"></div><div class="pval go" id="pp-sav">—</div></div>
+      </div>
+      <!-- Budget -->
+      <div class="psec">
+        <div class="psec-hd"><div class="psec-ttl" data-fa="بودجه‌بندی" data-en="Budget"></div><div class="psec-act" onclick="A.openM('m-eb')" data-fa="ویرایش" data-en="Edit"></div></div>
+        <div id="pp-bud"></div>
+        <div class="be-sum"><div><span style="color:var(--t2)" data-fa="تخصیص: " data-en="Allocated: "></span><span id="pp-alloc" style="color:var(--gold);font-family:'DM Mono',monospace">—</span></div><div><span style="color:var(--t2)" data-fa="باقی: " data-en="Left: "></span><span id="pp-left" style="color:var(--mint);font-family:'DM Mono',monospace">—</span></div></div>
+        <div style="padding:11px 14px"><button onclick="A.openM('m-eb')" style="width:100%;padding:10px;border-radius:var(--r2);border:1.5px dashed rgba(201,168,76,.2);background:var(--goldA);color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit"><span data-fa="+ افزودن / ویرایش دسته" data-en="+ Add / Edit Categories"></span></button></div>
+      </div>
+      <!-- Settings -->
+      <div class="psec">
+        <div class="psec-hd"><div class="psec-ttl" data-fa="تنظیمات" data-en="Settings"></div></div>
+        <div class="prow"><div><div class="plbl" data-fa="زبان" data-en="Language"></div><div style="font-size:9px;color:var(--t3);margin-top:1px">FA / EN</div></div><label class="tgl"><input type="checkbox" id="ltglp" onchange="A.togLang()"><div class="tgl-s"></div></label></div>
+        <div class="prow"><div class="plbl" data-fa="اعلان‌های هوشمند" data-en="Smart Notifications"></div><label class="tgl"><input type="checkbox" checked><div class="tgl-s"></div></label></div>
+        <div class="prow"><div class="plbl" data-fa="ورود بیومتریک" data-en="Biometric Login"></div><label class="tgl"><input type="checkbox" checked><div class="tgl-s"></div></label></div>
+        <div class="prow"><div class="plbl" data-fa="تغییر رمز عبور" data-en="Change Password"></div><div style="font-size:11px;color:var(--gold);cursor:pointer" onclick="A.toast(L('بزودی...','Coming soon...'))" data-fa="تغییر ←" data-en="Change ←"></div></div>
+      </div>
+      <div style="text-align:center;font-size:8px;color:var(--t4);padding:4px">NEXUS v1.0.0</div>
+      <button class="danger-btn" onclick="A.clearData()"><span data-fa="🚪 خروج از حساب" data-en="🚪 Sign Out"></span></button>
+    </div>
+
+  </div>
+
+  <!-- NAV -->
+  <nav class="bnav">
+    <div class="ni active" id="n-home" onclick="A.goPage('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span data-fa="خانه" data-en="Home"></span><div class="npip2"></div></div>
+    <div class="ni" id="n-accounts" onclick="A.goPage('accounts')"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 14h2M10 14h4"/></svg><span data-fa="حساب‌ها" data-en="Accounts"></span><div class="npip2"></div></div>
+    <div class="ni" id="n-wealth" onclick="A.goPage('wealth')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span data-fa="دارایی" data-en="Wealth"></span><div class="npip2"></div></div>
+    <div class="ni" id="n-insights" onclick="A.goPage('insights')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span data-fa="تحلیل" data-en="Analysis"></span><div class="npip2"></div></div>
+    <div class="ni" id="n-services" onclick="A.goPage('services')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><span data-fa="خدمات" data-en="Services"></span><div class="npip2"></div></div>
+  </nav>
+</div>
+
+<!-- MODALS -->
+<!-- Transfer -->
+<div class="ov" id="m-tr" onclick="A.closeM(event,'m-tr')"><div class="msheet"><div class="mh"></div><div class="mttl" data-fa="انتقال وجه" data-en="Transfer Money"></div><div class="fl" data-fa="از حساب" data-en="From Account"></div><div class="tr-banks" id="tr-banks"></div><div class="f"><label class="fl" data-fa="به حساب (شماره کارت)" data-en="To Card Number"></label><input class="fi" type="text" inputmode="numeric" data-pfa="شماره کارت مقصد" data-pen="Destination card"></div><div class="f"><label class="fl" data-fa="مبلغ (تومان)" data-en="Amount (Toman)"></label><input class="fi" id="tr-amt" type="number" inputmode="numeric" style="font-family:'DM Mono',monospace"></div><button class="btn-gold" style="width:100%" onclick="A.doTr()"><span data-fa="انتقال وجه ←" data-en="Transfer ←"></span></button></div></div>
+<!-- Loan Calc -->
+<div class="ov" id="m-calc" onclick="A.closeM(event,'m-calc')"><div class="msheet"><div class="mh"></div><div class="mttl" data-fa="محاسبه اقساط" data-en="Loan Calculator"></div><div class="f"><label class="fl" data-fa="مبلغ وام (تومان)" data-en="Loan Amount (Toman)"></label><input class="fi" id="lc-a" type="number" inputmode="numeric" oninput="A.calcLoan()"></div><div class="frow"><div class="f"><label class="fl" data-fa="مدت (ماه)" data-en="Duration (months)"></label><input class="fi" id="lc-m" type="number" inputmode="numeric" placeholder="36" oninput="A.calcLoan()"></div><div class="f"><label class="fl" data-fa="سود ٪" data-en="Rate %"></label><input class="fi" id="lc-r" type="number" inputmode="decimal" placeholder="24" oninput="A.calcLoan()"></div></div><div id="lc-res" style="padding:13px;background:var(--bg2);border-radius:var(--r2);text-align:center"><div style="font-size:10px;color:var(--t2);margin-bottom:5px" data-fa="قسط ماهانه" data-en="Monthly Payment"></div><div style="font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:var(--gold)" id="lc-inst">—</div><div style="font-size:10px;color:var(--t2);margin-top:7px" id="lc-tot"></div></div></div></div>
+<!-- Edit Profile -->
+<div class="ov" id="m-ep" onclick="A.closeM(event,'m-ep')"><div class="msheet"><div class="mh"></div><div class="mttl" data-fa="ویرایش پروفایل" data-en="Edit Profile"></div><div class="f"><label class="fl" data-fa="نام" data-en="Name"></label><input class="fi" id="ep-nm" type="text"></div><button class="btn-gold" style="width:100%" onclick="A.savePro()"><span data-fa="ذخیره" data-en="Save"></span></button><button onclick="A.closeById('m-ep')" style="width:100%;padding:11px;color:var(--t2);font-size:12px;margin-top:7px;font-family:inherit"><span data-fa="انصراف" data-en="Cancel"></span></button></div></div>
+<!-- Edit Finance -->
+<div class="ov" id="m-ef" onclick="A.closeM(event,'m-ef')"><div class="msheet"><div class="mh"></div><div class="mttl" data-fa="ویرایش مالی" data-en="Edit Financial Info"></div><div class="f"><label class="fl" data-fa="درآمد ماهانه (تومان)" data-en="Monthly Income (Toman)"></label><input class="fi" id="ef-i" type="number" inputmode="numeric"></div><div class="f"><label class="fl" data-fa="هزینه ماهانه (تومان)" data-en="Monthly Expenses (Toman)"></label><input class="fi" id="ef-e" type="number" inputmode="numeric"></div><button class="btn-gold" style="width:100%" onclick="A.saveFin()"><span data-fa="ذخیره" data-en="Save"></span></button><button onclick="A.closeById('m-ef')" style="width:100%;padding:11px;color:var(--t2);font-size:12px;margin-top:7px;font-family:inherit"><span data-fa="انصراف" data-en="Cancel"></span></button></div></div>
+<!-- Edit Budget -->
+<div class="ov" id="m-eb" onclick="A.closeM(event,'m-eb')"><div class="msheet"><div class="mh"></div><div class="mttl" data-fa="ویرایش بودجه" data-en="Edit Budget"></div><div id="eb-rows"></div><div class="f" style="margin-top:9px"><label class="fl" data-fa="+ دسته جدید" data-en="+ New Category"></label><div style="display:flex;gap:7px"><input class="fi" id="eb-nm" type="text" style="flex:1" data-pfa="نام" data-pen="Name"><input class="fi" id="eb-am" type="number" inputmode="numeric" style="width:115px;font-family:'DM Mono',monospace" data-pfa="مبلغ" data-pen="Amount"><button onclick="A.addCat2()" style="padding:0 12px;background:var(--goldA);border:1px solid rgba(201,168,76,.2);border-radius:var(--r1);color:var(--gold);font-size:17px;cursor:pointer">+</button></div></div><div style="display:flex;justify-content:space-between;font-size:11px;padding:8px 11px;background:var(--bg2);border-radius:var(--r1);margin-bottom:13px"><span data-fa="تخصیص:" data-en="Allocated:"></span><span id="eb-alloc" style="color:var(--gold);font-family:'DM Mono',monospace">—</span><span data-fa="باقی:" data-en="Left:"></span><span id="eb-left" style="color:var(--mint);font-family:'DM Mono',monospace">—</span></div><button class="btn-gold" style="width:100%" onclick="A.saveBud()"><span data-fa="ذخیره بودجه" data-en="Save Budget"></span></button><button onclick="A.closeById('m-eb')" style="width:100%;padding:11px;color:var(--t2);font-size:12px;margin-top:7px;font-family:inherit"><span data-fa="انصراف" data-en="Cancel"></span></button></div></div>
+<!-- Settings -->
+<div class="ov" id="m-settings" onclick="A.closeM(event,'m-settings')"><div class="msheet"><div class="mh"></div><div class="mttl" data-fa="تنظیمات" data-en="Settings"></div>
+<div style="display:flex;flex-direction:column;gap:0">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--bd)"><div><div style="font-size:12px;font-weight:500" data-fa="زبان" data-en="Language"></div><div style="font-size:10px;color:var(--t2);margin-top:1px">FA / EN</div></div><div id="set-lang-btn" style="font-size:12px;color:var(--gold);cursor:pointer" onclick="A.togLang();A.closeById('m-settings')">—</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--bd)"><div style="font-size:12px;font-weight:500" data-fa="ویرایش بودجه" data-en="Edit Budget"></div><div style="font-size:11px;color:var(--gold);cursor:pointer" onclick="A.closeById('m-settings');A.openM('m-eb')" data-fa="ویرایش ←" data-en="Edit ←"></div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0"><div style="font-size:12px;font-weight:500;color:var(--rose)" data-fa="خروج" data-en="Sign Out"></div><div style="font-size:11px;color:var(--rose);cursor:pointer" onclick="A.clearData()" data-fa="خروج ←" data-en="Sign Out ←"></div></div>
+</div>
+<button onclick="A.closeById('m-settings')" style="width:100%;padding:13px;background:var(--bg3);border-radius:var(--r2);color:var(--t1);font-size:13px;font-weight:600;margin-top:7px;font-family:inherit"><span data-fa="بستن" data-en="Close"></span></button></div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+const S={lang:'fa',user:{name:'',income:0,expense:0},budget:[],assets:[],banks:[],prices:{btc:65000,eth:3200,usd:62000,eur:68000,gold:21400000},obStep:1,selAt:'re',selSub:'',curPage:'home',curSvc:'loan'};
+const DB={K:'nx5',save(){try{localStorage.setItem(DB.K,JSON.stringify({lang:S.lang,user:S.user,budget:S.budget,assets:S.assets,banks:S.banks}))}catch(e){}},load(){try{const d=JSON.parse(localStorage.getItem(DB.K)||'null');if(d){Object.assign(S,{lang:d.lang||'fa',user:d.user||S.user,budget:d.budget||[],assets:d.assets||[],banks:d.banks||[]});return true}}catch(e){}return false}};
+function L(fa,en){return S.lang==='fa'?fa:en}
+function fmt(n){n=Math.round(n);if(n>=1e12)return(n/1e12).toFixed(1)+'T';if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';return n.toLocaleString()}
+function fmtF(n){return Math.round(n).toLocaleString()}
+function aVal(a){if(a.sym==='btc')return a.qty*S.prices.btc*S.prices.usd*10;if(a.sym==='eth')return a.qty*S.prices.eth*S.prices.usd*10;if(a.sym==='usd')return a.qty*S.prices.usd*10;if(a.sym==='eur')return a.qty*S.prices.eur*10;return a.val||0}
+function totW(){return S.assets.reduce((s,a)=>s+aVal(a),0)}
+function liqW(){return S.assets.filter(a=>['fx','cr','dp','ca'].includes(a.type)).reduce((s,a)=>s+aVal(a),0)}
+function calcSc(){const inc=S.user.income||1,exp=S.user.expense||0;const sr=Math.max(0,(inc-exp)/inc);const w=totW(),lq=w>0?liqW()/w:0;const dv=Math.min(1,S.assets.length/4);return Math.max(0,Math.min(100,Math.round(sr*40+lq*25+dv*20+(inc>30e6?15:8))))}
+function getCats(){const exp=S.user.expense||1;if(S.budget.length>0){const tot=S.budget.reduce((s,b)=>s+b.amount,0)||exp;return S.budget.map((b,i)=>({n:b.name,c:['#C9A84C','#0DD9A0','#3B82F6','#A87BF0','#E84040','#E8A020'][i%6],p:b.amount/tot}))}return[{n:L('مسکن','Housing'),c:'#C9A84C',p:.30},{n:L('خوراک','Food'),c:'#0DD9A0',p:.25},{n:L('حمل‌ونقل','Transport'),c:'#3B82F6',p:.15},{n:L('قبوض','Utilities'),c:'#A87BF0',p:.12},{n:L('سایر','Other'),c:'#E84040',p:.18}]}
+const MM_FA=['فرو','ارد','خرد','تیر','مرد','شهر'];const MM_EN=['Jan','Feb','Mar','Apr','May','Jun'];
+const MULTS=[{i:.97,e:1.04},{i:1.02,e:.96},{i:1.04,e:1.02},{i:.95,e:1.08},{i:1.07,e:.93},{i:1,e:1}];
+const BDEF={mellat:{fa:'بانک ملت',en:'Mellat',c1:'#1565C0',c2:'#0A3A8A'},melli:{fa:'بانک ملی',en:'Melli',c1:'#B71C1C',c2:'#7F0000'},saderat:{fa:'صادرات',en:'Saderat',c1:'#1B5E20',c2:'#004D00'},tejarat:{fa:'تجارت',en:'Tejarat',c1:'#E65100',c2:'#BF360C'},pasargad:{fa:'پاسارگاد',en:'Pasargad',c1:'#4A148C',c2:'#1A0050'},parsian:{fa:'پارسیان',en:'Parsian',c1:'#006064',c2:'#004D40'}};
+
+function applyLang(){
+  const fa=S.lang==='fa';
+  document.documentElement.lang=S.lang;document.documentElement.dir=fa?'rtl':'ltr';
+  document.body.className=fa?'lang-fa':'lang-en en';
+  document.querySelectorAll('[data-fa]').forEach(el=>{const t=fa?el.dataset.fa:el.dataset.en;if(t!==undefined)el.textContent=t});
+  document.querySelectorAll('[data-pfa]').forEach(el=>{el.placeholder=fa?el.dataset.pfa:el.dataset.pen});
+  ['ltog','ltog2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fa?'EN':'فا'});
+  const lp=document.getElementById('ltglp');if(lp)lp.checked=!fa;
+  const slb=document.getElementById('set-lang-btn');if(slb)slb.textContent=fa?'English ←':'فارسی ←';
+}
+
+const A={
+  lang(l){S.lang=l;DB.save();applyLang();document.getElementById('s-lang').classList.remove('active');document.getElementById('s-ob').classList.add('active');this.initOb()},
+  togLang(){S.lang=S.lang==='fa'?'en':'fa';DB.save();applyLang();this.renderAll();this.toast(S.lang==='fa'?'فارسی ✓':'English ✓')},
+  showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')},
+
+  // ONBOARD
+  initOb(){S.obStep=1;this.goObS(1);if(S.budget.length===0)S.budget=S.lang==='fa'?[{name:'مسکن',amount:0},{name:'خوراک',amount:0},{name:'حمل‌ونقل',amount:0},{name:'قبوض',amount:0}]:[{name:'Housing',amount:0},{name:'Food',amount:0},{name:'Transport',amount:0},{name:'Utilities',amount:0}];this.renderObBud()},
+  renderObBud(){const c=document.getElementById('ob-bud-fields');if(!c)return;c.innerHTML=S.budget.map((b,i)=>`<div class="f"><label class="fl">${b.name}</label><input class="fi" type="number" inputmode="numeric" value="${b.amount||''}" placeholder="${fmtF(Math.round((S.user.expense||0)*[.33,.25,.13,.1][i]||0))}" oninput="A.updBud(${i},this.value)" style="font-family:'DM Mono',monospace"></div>`).join('');this.updBudSum()},
+  updBud(i,v){S.budget[i].amount=parseFloat(v)||0;this.updBudSum()},
+  updBudSum(){const a=S.budget.reduce((s,b)=>s+b.amount,0);const l=Math.max(0,(S.user.expense||0)-a);const ae=document.getElementById('ob-alloc'),le=document.getElementById('ob-left');if(ae)ae.textContent=fmt(a);if(le)le.textContent=fmt(l)},
+  addCat(){const n=document.getElementById('ob-cname')?.value.trim();const amt=parseFloat(document.getElementById('ob-camt')?.value)||0;if(!n){this.toast(L('نام وارد کنید','Enter name'));return}S.budget.push({name:n,amount:amt});document.getElementById('ob-cname').value='';document.getElementById('ob-camt').value='';this.renderObBud()},
+  togB(el){el.classList.toggle('sel')},
+  obNext(){
+    if(S.obStep===1){const nm=document.getElementById('ob-name')?.value.trim();const inc=parseFloat(document.getElementById('ob-inc')?.value)||0;const exp=parseFloat(document.getElementById('ob-exp')?.value)||0;if(!nm){this.toast(L('نام وارد کنید','Enter name'));return}S.user={name:nm,income:inc,expense:exp};this.renderObBud();this.goObS(2)}
+    else if(S.obStep===2){this.goObS(3)}
+    else if(S.obStep===3){const sel=document.querySelectorAll('.bchip.sel');S.banks=Array.from(sel).map(e=>e.dataset.b);if(S.banks.length===0)S.banks=['mellat','melli'];this.goObS(4)}
+    else{const now=Date.now();const add=(ico,t,nm,val,qty,sym)=>S.assets.push({id:now+S.assets.length,ico,type:t,name:nm,val,qty,sym});const irt=parseFloat(document.getElementById('ob-irt')?.value)||0;const usd=parseFloat(document.getElementById('ob-usd')?.value)||0;const eur=parseFloat(document.getElementById('ob-eur')?.value)||0;const btc=parseFloat(document.getElementById('ob-btc')?.value)||0;const eth=parseFloat(document.getElementById('ob-eth')?.value)||0;const oth=parseFloat(document.getElementById('ob-oth')?.value)||0;if(irt>0)add('💰','ca',L('نقد','Cash'),irt,0,'');if(usd>0)add('💵','fx','USD',0,usd,'usd');if(eur>0)add('💶','fx','EUR',0,eur,'eur');if(btc>0)add('₿','cr','Bitcoin',0,btc,'btc');if(eth>0)add('Ξ','cr','Ethereum',0,eth,'eth');if(oth>0)add('💎','gj',L('طلا/سایر','Gold/Other'),oth,0,'');DB.save();this.launch()}
+  },
+  obBack(){if(S.obStep>1)this.goObS(S.obStep-1)},
+  goObS(n){document.getElementById('os'+S.obStep)?.classList.remove('active');S.obStep=n;document.getElementById('os'+n)?.classList.add('active');for(let i=1;i<=4;i++){const d=document.getElementById('od'+i);if(!d)continue;d.className='ob-dot'+(i<n?' done':i===n?' active':'')};const b=document.getElementById('ob-back');if(b)b.classList.toggle('show',n>1);const sp=document.getElementById('ob-nxt')?.querySelector('span');if(sp){sp.dataset.fa=n===4?'شروع NEXUS ✦':'ادامه';sp.dataset.en=n===4?'Launch NEXUS ✦':'Continue'}applyLang()},
+
+  // LAUNCH
+  launch(){DB.save();applyLang();this.showScr('s-app');this.updAvs();this.renderAll();this.fetchP()},
+  updAvs(){const l=(S.user.name||'N').charAt(0).toUpperCase();['hav','aav','sav','pav-l'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=l});const un=document.getElementById('uname');if(un)un.textContent=S.user.name||'NEXUS';const gr=document.getElementById('greet');if(gr){const h=new Date().getHours();gr.textContent=S.lang==='fa'?(h<12?'صبح بخیر 👋':h<17?'ظهر بخیر 👋':'شب بخیر 👋'):(h<12?'Good morning 👋':h<17?'Good afternoon 👋':'Good evening 👋')}const pn=document.getElementById('p-name');if(pn)pn.textContent=S.user.name||'—';const ppn=document.getElementById('pp-nm');if(ppn)ppn.textContent=S.user.name||'—'},
+
+  // NAV
+  goPage(pg,opts){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('p-'+pg)?.classList.add('active');document.getElementById('n-'+pg)?.classList.add('active');S.curPage=pg;if(pg==='wealth')this.renderWealth();if(pg==='accounts')this.renderAcc();if(pg==='insights')this.renderIns();if(pg==='services'){this.renderSvc();if(opts?.tab)this.svcTab(opts.tab,document.getElementById('it-'+opts.tab))}if(pg==='profile')this.renderProf()},
+
+  // PRICES
+  async fetchP(){try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd',{signal:AbortSignal.timeout(7000)});const d=await r.json();if(d.bitcoin)S.prices.btc=d.bitcoin.usd;if(d.ethereum)S.prices.eth=d.ethereum.usd}catch(e){}this.renderTick();this.renderHomeBalance();if(S.curPage==='wealth')this.renderWealth()},
+  renderTick(){const items=[{n:'BTC',p:'$'+S.prices.btc.toLocaleString(),c:'+2.4%',up:true},{n:'ETH',p:'$'+S.prices.eth.toLocaleString(),c:'+1.8%',up:true},{n:'USD',p:fmtF(S.prices.usd*10)+'﷼',c:'+0.3%',up:true},{n:'EUR',p:fmtF(S.prices.eur*10)+'﷼',c:'+0.5%',up:true},{n:'XAU',p:fmt(S.prices.gold),c:'+8%',up:true}];const r=document.getElementById('tick-row');if(r)r.innerHTML=items.map(t=>`<div class="tick"><div class="tnm">${t.n}</div><div class="tpr">${t.p}</div><div class="tchg ${t.up?'up':'dn'}">${t.c}</div></div>`).join('')},
+
+  // RENDER ALL
+  renderAll(){applyLang();this.updAvs();this.renderHomeBalance();this.renderHomeMix();this.renderHomeIns();this.renderTick()},
+
+  // HOME
+  renderHomeBalance(){const w=totW();const inc=S.user.income||0;const exp=S.user.expense||0;const sav=Math.max(0,inc-exp);const sr=inc>0?Math.round(((inc-exp)/inc)*100):0;const ba=document.getElementById('bc-amt');if(ba)ba.innerHTML=`${fmt(w)} <span class="bc-unit">${L('تومان','T')}</span>`;const bc=document.getElementById('bc-chg');if(bc)bc.innerHTML=`↑ ${sr}% ${L('نرخ پس‌انداز','savings rate')}`;[['bc-inc',inc],['bc-exp',exp],['bc-sav',sav]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.textContent=fmt(v)})},
+  renderHomeMix(){const w=totW();const m=document.getElementById('home-mix');if(!m)return;if(w<=0){m.innerHTML=`<div style="text-align:center;font-size:11px;color:var(--t3);padding:7px">${L('هنوز دارایی ثبت نشده','No assets yet')}</div>`;return}const gn={re:L('ملک','Property'),ve:L('خودرو','Vehicle'),gj:L('طلا','Gold'),cr:L('رمزارز','Crypto'),fx:L('ارز','Forex'),st:L('سهام','Stocks'),dp:L('سپرده','Deposit'),ca:L('نقد','Cash'),ot:L('سایر','Other')};const gc={re:'#0DD9A0',ve:'#E84040',gj:'#C9A84C',cr:'#A87BF0',fx:'#3B82F6',st:'#E8A020',dp:'#0DD9A0',ca:'#3B82F6',ot:'#8896B3'};const groups={};S.assets.forEach(a=>{groups[a.type]=(groups[a.type]||0)+aVal(a)});m.innerHTML=Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([t,v])=>{const p=Math.round(v/w*100);const c=gc[t]||'#8896B3';return`<div class="mix-r"><div class="mix-dot" style="background:${c}"></div><div class="mix-nm">${gn[t]||t}</div><div class="mix-bw"><div class="mix-bf" style="width:${p}%;background:${c}"></div></div><div class="mix-pc" style="color:${c}">${p}%</div><div class="mix-vl">${fmt(v)}</div></div>`}).join('')},
+  renderHomeIns(){const inc=S.user.income||1;const exp=S.user.expense||0;const sav=Math.max(0,inc-exp);const sr=Math.round(((inc-exp)/Math.max(inc,1))*100);const w=totW();const mo=w>0&&exp>0?Math.round(w/exp):0;const cards=[sr<20?{cl:'warn',ico:'⚠️',bdg:L('هشدار','Warning'),bc:'var(--rose)',bb:'var(--roseA)',ttl:L(`پس‌انداز ${sr}٪ پایین`,`Low savings rate ${sr}%`),bdy:L(`با کاهش ۱۰٪ هزینه، ${fmt(sav+exp*.1)} ت/ماه پس‌انداز.`,`Cut 10% expenses, save ${fmt(sav+exp*.1)} T/mo.`)}:{cl:'ok',ico:'✅',bdg:L('عالی','Great'),bc:'var(--mint)',bb:'var(--mintA)',ttl:L(`پس‌انداز ${sr}٪`,`${sr}% savings rate`),bdy:L(`${fmt(sav)} ت/ماه پس‌انداز. عالیه!`,`Saving ${fmt(sav)} T/month. Keep it up!`)},{cl:'tip',ico:'🛡️',bdg:L('اضطراری','Emergency'),bc:'var(--gold)',bb:'var(--goldA)',ttl:L(`${mo} ماه پوشش اضطراری`,`${mo}-mo emergency fund`),bdy:mo>=6?L('✓ پوشش کافی','✓ Adequate coverage'):L(`برای ۶ ماه، ${fmt((6-mo)*exp)} ت بیشتر نیاز دارید.`,`Need ${fmt((6-mo)*exp)} T more for 6-mo fund.`)},{cl:'info',ico:'📊',bdg:'DTI',bc:'var(--blue)',bb:'var(--blueA)',ttl:L('ظرفیت وام بالا','Strong borrowing capacity'),bdy:L(`DTI: ۰٪ — ظرفیت قسط: ${fmt(inc*.35)} ت/ماه`,`DTI: 0% — Capacity: ${fmt(inc*.35)} T/mo`)}];const c=document.getElementById('home-ins');if(c)c.innerHTML=cards.map(x=>`<div class="ins-c ${x.cl}"><div class="ins-ico">${x.ico}</div><div class="ins-bdg" style="color:${x.bc};background:${x.bb}">${x.bdg}</div><div class="ins-ttl">${x.ttl}</div><div class="ins-bdy">${x.bdy}</div></div>`).join('')},
+
+  // ACCOUNTS
+  renderAcc(){const chosen=S.banks.length>0?S.banks:['mellat','melli'];const txfa=[['🛒','دیجی‌کالا','-2,350,000','neg','دیروز'],['💰','حقوق مهر','+25,000,000','pos','۳ روز پیش'],['⚡','قبض برق','-480,000','neg','۵ روز پیش']];const txen=[['🛒','Digikala','-2,350,000','neg','Yesterday'],['💰','Salary','+25,000,000','pos','3 days ago'],['⚡','Electricity','-480,000','neg','5 days ago']];const txns=S.lang==='fa'?txfa:txen;let tot=0;const al=document.getElementById('acc-list');if(!al)return;al.innerHTML=chosen.map((k,i)=>{const b=BDEF[k]||BDEF.mellat;const nm=S.lang==='fa'?b.fa:b.en;const bal=Math.round((S.user.income||25e6)*(0.9+i*0.4));tot+=bal;const nums=['****4521','****8830','****1147'][i]||'****';const cn=['6037 9975 1234 4521','6037 8810 9821 8830','5022 2910 7734 1147'][i]||'';const sh=['IR12 0120 0000 0001 2345 6789','IR98 0170 0000 0104 5621 0001','IR44 0570 2810 0003 0012 1400'][i]||'';const bc=['var(--mint)','var(--gold)','var(--blue)'][i]||'var(--mint)';return`<div class="acc-card" id="ac-${k}"><div class="acc-hd" onclick="A.togAcc('${k}')"><div class="acc-logo" style="background:linear-gradient(135deg,${b.c1},${b.c2})"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="acc-inf"><div class="acc-nm">${nm}</div><div class="acc-num">${nums}</div></div><div class="acc-bal" style="color:${bc}">${fmt(bal)}</div></div><div class="acc-acts"><button class="btn-sm btn-sm-g" onclick="A.openM('m-tr')">${L('↑ انتقال','↑ Transfer')}</button><button class="btn-sm btn-sm-h" onclick="A.togAcc('${k}')">${L('اطلاعات ↕','Info ↕')}</button><button class="btn-sm btn-sm-h" onclick="A.toast(L('تاریخچه','History'))">${L('تاریخچه','History')}</button></div><div class="acc-xpanel" id="xp-${k}"><div class="xrow"><div class="xlbl">${L('شماره کارت','Card')}</div><div class="xval">${cn}</div><div class="cpybtn" onclick="A.copy('${cn}',this)">${L('کپی','Copy')}</div></div><div class="xrow"><div class="xlbl">${L('شبا','IBAN')}</div><div class="xval" style="font-size:10px">${sh}</div><div class="cpybtn" onclick="A.copy('${sh.replace(/\s/g,'')}',this)">${L('کپی','Copy')}</div></div><div class="xrow"><div class="xlbl">${L('صاحب حساب','Holder')}</div><div class="xval">${S.user.name||'—'}</div></div></div><div class="acc-txns">${txns.map(([ic,d,am,cl,dt])=>`<div class="txr"><div style="display:flex;align-items:center;gap:9px"><div class="txr-ico">${ic}</div><div><div class="txr-nm">${d}</div><div class="txr-dt">${dt}</div></div></div><div class="txr-amt ${cl}">${am}</div></div>`).join('')}<div class="see-all" onclick="A.toast(L('تاریخچه کامل','Full History'))">${L('مشاهده همه ←','View all ←')}</div></div></div>`}).join('');const tb=document.getElementById('tot-bal');if(tb)tb.textContent=fmt(tot)+(S.lang==='fa'?' تومان':' T');const bc2=document.getElementById('bal-chg');if(bc2)bc2.textContent='↑ 2.1% '+L('هفته','week');const trb=document.getElementById('tr-banks');if(trb)trb.innerHTML=chosen.map((k,i)=>{const b=BDEF[k]||BDEF.mellat;return`<div class="tr-bk ${i===0?'sel':''}" onclick="this.parentElement.querySelectorAll('.tr-bk').forEach(x=>x.classList.remove('sel'));this.classList.add('sel')"><div class="tr-bi" style="background:linear-gradient(135deg,${b.c1},${b.c2});"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="tr-bl">${S.lang==='fa'?b.fa:b.en}</div></div>`}).join('');const fl=document.getElementById('fund-list');if(fl)fl.innerHTML=[{ico:'📈',nm:L('صندوق طلای لوتوس','Lotus Gold Fund'),sb:L('موجودی ۵۰M · سود امروز: +۴۵K','Balance 50M · Today: +45K'),rt:'28%',rc:'var(--mint)'},{ico:'🏦',nm:L('صندوق آگاه','Agah Fund'),sb:L('موجودی ۳۰M · سود امروز: +۲۶K','Balance 30M · Today: +26K'),rt:'24%',rc:'var(--gold)'}].map(f=>`<div class="fund-row"><div class="fund-ico" style="background:var(--bg3)">${f.ico}</div><div style="flex:1"><div style="font-size:12px;font-weight:600">${f.nm}</div><div style="font-size:10px;color:var(--t2);margin-top:1px">${f.sb}</div></div><div><div class="fund-rt" style="color:${f.rc}">${f.rt}</div><div style="font-size:8px;color:var(--t2);text-align:left">${L('سالانه','Annual')}</div></div></div>`).join('')},
+  togAcc(k){document.getElementById('xp-'+k)?.classList.toggle('open')},
+  filt(t,el){document.querySelectorAll('[id^=f-]').forEach(e=>{e.style.background='var(--bg2)';e.style.color='var(--t2)';e.style.border='1px solid var(--bd)'});el.style.background='var(--gold)';el.style.color='#0A0600';el.style.border='none';this.toast(L('فیلتر اعمال شد','Filter applied'))},
+
+  // WEALTH
+  renderWealth(){const w=totW();const wt=document.getElementById('w-tot');if(wt)wt.textContent=fmt(w)+(S.lang==='fa'?' تومان':' T');const sc=calcSc();const lq=liqW();const ws=document.getElementById('w-stats');if(ws){const best=S.assets.sort((a,b)=>aVal(b)-aVal(a))[0];ws.innerHTML=`<div class="w-st"><div class="w-sl">${L('بیشترین','Top')}</div><div class="w-sv" style="color:var(--mint);font-size:10px">${best?best.name:'—'}</div></div><div class="w-st"><div class="w-sl">${L('تعداد','Count')}</div><div class="w-sv" style="color:var(--gold)">${S.assets.length}</div></div><div class="w-st"><div class="w-sl">${L('نقدینگی','Liquid')}</div><div class="w-sv" style="color:var(--blue)">${w>0?Math.round(lq/w*100):0}%</div></div><div class="w-st"><div class="w-sl">${L('امتیاز','Score')}</div><div class="w-sv" style="color:var(--violet)">${sc}</div></div>`}this.renderAssets();this.renderTick()},
+  renderAssets(){const al=document.getElementById('asset-list');if(!al)return;if(S.assets.length===0){al.innerHTML=`<div style="text-align:center;padding:18px;color:var(--t3);font-size:12px">${L('هنوز دارایی ثبت نشده','No assets yet')}</div>`;return}const tc={re:'#0DD9A0',ve:'#E84040',gj:'#C9A84C',cr:'#A87BF0',fx:'#3B82F6',st:'#E8A020',dp:'#0DD9A0',ca:'#3B82F6',ot:'#8896B3'};const tb={re:'rgba(13,217,160,.1)',ve:'rgba(232,64,64,.1)',gj:'rgba(201,168,76,.1)',cr:'rgba(168,123,240,.1)',fx:'rgba(59,130,246,.1)',st:'rgba(232,160,32,.1)',dp:'rgba(13,217,160,.1)',ca:'rgba(59,130,246,.1)',ot:'rgba(136,150,179,.1)'};const live=['cr','fx'];al.innerHTML=S.assets.map(a=>{const v=aVal(a);const c=tc[a.type]||'#8896B3';const bg=tb[a.type]||'rgba(136,150,179,.1)';const islive=live.includes(a.type);const sb=a.qty>0?`${a.qty} ${a.sym?.toUpperCase()}${islive?' · '+L('زنده','live'):''}`:L('تقریبی','Approx.');return`<div class="a-row"><div class="a-del" onclick="A.delAsset(${a.id})">✕</div><div class="a-ico" style="background:${bg}">${a.ico}</div><div style="flex:1;min-width:0"><div class="a-nm">${a.name}</div><div class="a-sb">${sb}</div></div><div><div class="a-vl" style="color:${c}">${fmt(v)}</div><div class="a-cg" style="color:${islive?'var(--mint)':'var(--t3)'}">${islive?'↑ live':L('ثابت','fixed')}</div></div></div>`}).join('')},
+  togAF(){const f=document.getElementById('add-af');if(!f)return;f.classList.toggle('open');if(f.classList.contains('open')){S.selAt='re';document.querySelectorAll('.atype').forEach(e=>e.classList.remove('sel'));document.querySelector('.atype[data-t="re"]')?.classList.add('sel');this.updAfUI()}},
+  selAt(el){document.querySelectorAll('.atype').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');S.selAt=el.dataset.t;S.selSub='';this.updAfUI()},
+  updAfUI(){const live=['cr','fx'];const ln=document.getElementById('af-live');if(ln)ln.style.display=live.includes(S.selAt)?'flex':'none';const so=document.getElementById('af-subs');const qw=document.getElementById('af-qty-w');let subs=[];if(S.selAt==='fx')subs=['USD','EUR','GBP','AED'];if(S.selAt==='cr')subs=['BTC','ETH','USDT','BNB'];if(so)so.innerHTML=subs.map((s,i)=>`<div class="sopt ${i===0?'sel':''}" onclick="A.selSub2('${s}',this)">${s}</div>`).join('');if(subs.length>0&&!S.selSub)S.selSub=subs[0];if(qw)qw.style.display=live.includes(S.selAt)?'block':'none';const afl=document.getElementById('af-lbl');if(afl){afl.dataset.fa=live.includes(S.selAt)?'ارزش محاسبه‌شده':'ارزش تقریبی (تومان)';afl.dataset.en=live.includes(S.selAt)?'Calculated value':'Approximate value (Toman)'}applyLang()},
+  selSub2(s,el){el.parentElement.querySelectorAll('.sopt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');S.selSub=s},
+  saveAsset(){const type=S.selAt;const now=Date.now();const im={re:'🏠',ve:'🚗',gj:'🥇',cr:'₿',fx:'💵',st:'📈',dp:'🏦',ca:'💰',ot:'📦'};const ico=im[type]||'📦';const sym=S.selSub.toLowerCase();const live=['cr','fx'];let ok=false;if(live.includes(type)){const qty=parseFloat(document.getElementById('af-qty')?.value)||0;const desc=document.getElementById('af-desc')?.value.trim();if(qty>0){const im2={usd:'💵',eur:'💶',gbp:'💷',aed:'🇦🇪',btc:'₿',eth:'Ξ',usdt:'💲',bnb:'🔶'};S.assets.push({id:now,ico:im2[sym]||ico,type,name:desc||S.selSub||sym.toUpperCase(),val:0,qty,sym});ok=true}}else{const val=parseFloat(document.getElementById('af-val')?.value)||0;const desc=document.getElementById('af-desc')?.value.trim()||L('دارایی','Asset');if(val>0){S.assets.push({id:now,ico,type,name:desc,val,qty:0,sym:''});ok=true}}if(!ok){this.toast(L('مقدار وارد کنید','Enter an amount'));return}DB.save();['af-val','af-qty','af-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});this.togAF();this.renderWealth();this.renderHomeMix();this.renderHomeBalance();this.toast(L('دارایی ذخیره شد ✓','Asset saved ✓'))},
+  delAsset(id){S.assets=S.assets.filter(a=>a.id!==id);DB.save();this.renderWealth();this.renderHomeMix();this.renderHomeBalance();this.toast(L('دارایی حذف شد','Asset removed'))},
+
+  // INSIGHTS
+  renderIns(){const inc=S.user.income||25e6;const exp=S.user.expense||15e6;const sav=Math.max(0,inc-exp);const sr=inc>0?Math.round(((inc-exp)/inc)*100):0;const er=inc>0?Math.round((exp/inc)*100):0;const sc=calcSc();const w=totW();const lq=liqW();const mo=w>0&&exp>0?Math.round(w/exp):0;const dv=Math.min(100,Math.round(S.assets.length/4*100));const lqp=w>0?Math.round(lq/w*100):0;
+  // ring
+  const ring=document.getElementById('h-ring');if(ring){const circ=188;ring.style.strokeDasharray=`${(sc/100)*circ} ${circ}`;ring.style.stroke=sc>=70?'var(--mint)':sc>=50?'var(--amber)':'var(--rose)'}
+  const hs=document.getElementById('h-sc');if(hs)hs.textContent=sc;const hl=document.getElementById('h-lbl');if(hl){hl.textContent=sc>=70?L('✓ وضعیت عالی','✓ Excellent'):sc>=50?L('وضعیت خوب','Good standing'):L('نیاز به توجه','Needs attention');hl.style.color=sc>=70?'var(--mint)':sc>=50?'var(--amber)':'var(--rose)'}
+  [[document.getElementById('hf-sr'),document.getElementById('hf-srv'),sr],[document.getElementById('hf-dv'),document.getElementById('hf-dvv'),dv],[document.getElementById('hf-lq'),document.getElementById('hf-lqv'),lqp]].forEach(([bf,bv,val])=>{if(bf)bf.style.width=val+'%';if(bv)bv.textContent=val+'%'});
+  // kpis
+  [[document.getElementById('kv-sr'),document.getElementById('ks-sr'),sr+'%',sr>=30?L('✓ عالی','✓ Great'):L('⚠ پایین','⚠ Low'),sr>=30?'var(--mint)':'var(--rose)'],[document.getElementById('kv-er'),document.getElementById('ks-er'),er+'%',er<=60?L('✓ متعادل','✓ OK'):L('⚠ بالا','⚠ High'),er<=60?'var(--mint)':'var(--rose)'],[document.getElementById('kv-em'),document.getElementById('ks-em'),mo+' '+L('ماه','mo'),mo>=6?L('✓ کافی','✓ OK'):L('⚠ ناکافی','⚠ Low'),mo>=6?'var(--mint)':'var(--amber)']].forEach(([v,s,vt,st,c])=>{if(v)v.textContent=vt;if(s){s.textContent=st;s.style.color=c}});
+  // bar chart
+  const mm=S.lang==='fa'?MM_FA:MM_EN;const rows=MULTS.map(m=>({inc:Math.round(inc*m.i),exp:Math.round(exp*m.e),sav:Math.max(0,Math.round(inc*m.i-exp*m.e))}));const mx=Math.max(...rows.map(r=>r.inc));const H=68;const bc=document.getElementById('bar-ch');if(bc)bc.innerHTML=rows.map((r,i)=>{const ih=Math.max(2,Math.round((r.inc/mx)*H));const eh=Math.max(2,Math.round((r.exp/mx)*H));const sh=Math.max(0,Math.round((r.sav/mx)*H));return`<div class="bar-g"><div class="bar-p"><div class="bar" style="height:${ih}px;background:linear-gradient(to top,var(--gold),rgba(201,168,76,.5))" data-t="${fmt(r.inc)}T"></div><div class="bar" style="height:${eh}px;background:linear-gradient(to top,var(--rose),rgba(232,64,64,.5))" data-t="${fmt(r.exp)}T"></div><div class="bar" style="height:${sh}px;background:linear-gradient(to top,var(--mint),rgba(13,217,160,.4))" data-t="${fmt(r.sav)}T"></div></div><div class="bar-lbl">${mm[i]}</div></div>`}).join('');
+  // exp table
+  const cats=getCats();const et=document.getElementById('exp-tbody');if(et)et.innerHTML=cats.map(c=>{const amt=Math.round(exp*c.p);return`<tr><td><div class="exp-cat-d"><div class="exp-col" style="background:${c.c}"></div>${c.n}</div></td><td><div style="display:flex;align-items:center;gap:4px"><div class="ebw"><div class="ebf" style="width:${Math.round(c.p*100)}%;background:${c.c}"></div></div><span style="font-size:9px;color:var(--t3)">${Math.round(c.p*100)}%</span></div></td><td class="eamt">${fmtF(amt)}</td></tr>`}).join('');
+  // budget bars
+  const bb=document.getElementById('bud-bars');const bd=document.getElementById('bud-days');if(bd)bd.textContent='18 '+L('روز مانده','days left');const bdata=S.budget.length>0?S.budget:[{name:L('مسکن','Housing'),amount:5e6},{name:L('خوراک','Food'),amount:4e6},{name:L('حمل‌ونقل','Transport'),amount:2e6},{name:L('سرگرمی','Entertainment'),amount:2e6}];const smults=[.9,.7,1.25,.4];if(bb)bb.innerHTML=bdata.map((b,i)=>{const sp=Math.round((smults[i%4]||.7)*100);const sa=Math.round(b.amount*(smults[i%4]||.7));const over=sp>100;const c=over?'var(--rose)':sp>80?'var(--amber)':'var(--mint)';return`<div class="bud-r"><div class="bud-h"><div class="bud-nm">${b.name}</div><div class="bud-nums" style="color:${c}">${fmtF(sa)} / ${fmtF(b.amount)}</div></div><div class="bud-bw"><div class="bud-bf" style="width:${Math.min(100,sp)}%;background:${c}"></div></div>${over?`<div class="bud-w" style="color:var(--rose)">⚠ ${L('از بودجه خارج','Over budget')}</div>`:''}</div>`}).join('');const overList=bdata.filter((b,i)=>(smults[i%4]||.7)>1);if(overList.length>0&&bb){const al=bb.nextElementSibling;if(!al||!al.classList.contains('bud-alert')){const a=document.createElement('div');a.className='bud-alert';a.textContent=`⚠ ${overList.map(b=>b.name).join('، ')} ${L('از بودجه رد شده','over budget')}`;bb.after(a)}}
+  // recs
+  const rl=document.getElementById('rec-list');if(rl){const recs=[];if(lqp<20)recs.push({c:'var(--amber)',bg:'var(--amberA)',ico:'💧',t:L('نقدینگی پایین','Low Liquidity'),b:L(`فقط ${lqp}٪ دارایی‌ات نقده. در اضطرار آماده‌ای؟`,`Only ${lqp}% liquid. Ready for emergencies?`),a:L('← بررسی نقدشوندگی','← Check liquid options')});if(er>65)recs.push({c:'var(--rose)',bg:'var(--roseA)',ico:'📉',t:L('هزینه بالا','High Expenses'),b:L(`نسبت هزینه ${er}٪ است. هدف: زیر ۶۰٪.`,`Expense ratio ${er}%. Target: below 60%.`),a:L('← مشاهده هزینه‌ها','← View expenses')});if(mo<6)recs.push({c:'var(--mint)',bg:'var(--mintA)',ico:'🛡️',t:L('صندوق اضطراری ناکافی','Emergency Fund Low'),b:L(`پوشش ${mo} ماه داری. هدف ۶ ماه.`,`${mo}-month coverage. Target: 6 months.`),a:L('← تنظیم هدف پس‌انداز','← Set savings goal')});if(S.assets.length<3)recs.push({c:'var(--blue)',bg:'var(--blueA)',ico:'📊',t:L('تنوع کم','Low Diversity'),b:L('سبد دارایی‌هات متنوع نیست.','Your portfolio lacks diversity.'),a:L('← افزودن دارایی','← Add assets')});if(recs.length===0)recs.push({c:'var(--mint)',bg:'var(--mintA)',ico:'🏆',t:L('وضعیت مالی خوب','Good Financial Health'),b:L('وضعیت کلی مالی‌ات عالیه! ادامه بده.','Your overall financial health is great!'),a:L('← جزئیات بیشتر','← More details')});rl.innerHTML=recs.map(r=>`<div class="rec-c"><div class="rec-bar" style="background:${r.c}"></div><div class="rec-iw" style="background:${r.bg}">${r.ico}</div><div><div class="rec-ttl">${r.t}</div><div class="rec-bdy">${r.b}</div><div class="rec-act" style="color:${r.c}" onclick="A.toast(L('بزودی...','Coming soon...'))">${r.a}</div></div></div>`).join('')}},
+  setPer(p,el){document.querySelectorAll('[id^=per-]').forEach(e=>{e.style.background='transparent';e.style.color='var(--t2)'});el.style.background='var(--gold)';el.style.color='#0A0600';this.toast(L('بزودی...','Coming soon...'))},
+
+  // SERVICES
+  svcTab(t,el){document.querySelectorAll('.itab').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tbc').forEach(e=>e.classList.remove('active'));el?.classList.add('active');document.getElementById('tb-'+t)?.classList.add('active');S.curSvc=t;if(t==='ins')this.renderSvc()},
+  renderSvc(){const insSug=document.getElementById('ins-sug');if(insSug){const uninsd=S.assets.filter(a=>['re','ve'].includes(a.type));if(uninsd.length>0){insSug.style.display='block';insSug.innerHTML=`<div class="ins-sug-t">⚠ ${L('دارایی‌های بیمه‌نشده','Uninsured Assets')}</div>`+uninsd.map(a=>`<div class="ins-sug-r"><div><div style="font-size:12px;font-weight:600">${a.ico} ${a.name}</div><div style="font-size:10px;color:var(--t2);margin-top:1px">${L('ارزش:','Value:')} ${fmt(aVal(a))} ${L('ت','T')}</div></div><button class="btn-sm btn-sm-g" onclick="A.toast(L('بزودی...','Coming soon...'))">${L('بیمه کن','Insure')}</button></div>`).join('')}else insSug.style.display='none'}const ig=document.getElementById('inv-gold');if(ig)ig.textContent=fmt(S.prices.gold);const cr=document.getElementById('inv-cr');const w=totW();const lq=liqW();if(cr)cr.textContent=fmt(S.assets.filter(a=>a.type==='cr').reduce((s,a)=>s+aVal(a),0));const bs=document.getElementById('btc-sub');if(bs)bs.textContent=`BTC $${S.prices.btc.toLocaleString()} · ↑ 2.4%`},
+
+  // PROFILE
+  renderProf(){const inc=S.user.income||0;const exp=S.user.expense||0;const sav=Math.max(0,inc-exp);[['pp-inc',inc,'g'],['pp-exp',exp,'r'],['pp-sav',sav,'go']].forEach(([id,v,c])=>{const el=document.getElementById(id);if(el)el.textContent=fmt(v)+(S.lang==='fa'?' ت':' T')});const pbr=document.getElementById('pp-bud');if(pbr){const cs=['#C9A84C','#0DD9A0','#3B82F6','#A87BF0','#E84040','#E8A020'];const tot=S.budget.reduce((s,b)=>s+b.amount,0)||1;pbr.innerHTML=S.budget.map((b,i)=>`<div class="be-row"><div class="be-h"><div class="be-nm">${b.name}</div><div class="be-v" onclick="A.openM('m-eb')">${fmtF(b.amount)}</div></div><div class="be-bw"><div class="be-bf" style="width:${Math.round(b.amount/tot*100)}%;background:${cs[i%6]}"></div></div></div>`).join('')}const alloc=S.budget.reduce((s,b)=>s+b.amount,0);const left2=Math.max(0,exp-alloc);const pa=document.getElementById('pp-alloc'),pl=document.getElementById('pp-left');if(pa)pa.textContent=fmt(alloc)+(S.lang==='fa'?' ت':' T');if(pl)pl.textContent=fmt(left2)+(S.lang==='fa'?' ت':' T')},
+
+  // MODALS
+  openM(id){const m=document.getElementById(id);if(!m)return;m.classList.add('open');if(id==='m-ep'){const e=document.getElementById('ep-nm');if(e)e.value=S.user.name||''}if(id==='m-ef'){const ei=document.getElementById('ef-i');const ee=document.getElementById('ef-e');if(ei)ei.value=S.user.income||'';if(ee)ee.value=S.user.expense||''}if(id==='m-eb')this.renderEbRows()},
+  closeM(e,id){if(e.target===e.currentTarget)document.getElementById(id)?.classList.remove('open')},
+  closeById(id){document.getElementById(id)?.classList.remove('open')},
+  renderEbRows(){const er=document.getElementById('eb-rows');if(!er)return;const cs=['#C9A84C','#0DD9A0','#3B82F6','#A87BF0','#E84040','#E8A020'];er.innerHTML=S.budget.map((b,i)=>`<div style="display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid var(--bd)"><div style="width:7px;height:7px;border-radius:2px;background:${cs[i%6]};flex-shrink:0"></div><div style="flex:1;font-size:12px">${b.name}</div><input style="width:120px;padding:7px 10px;background:var(--bg2);border:1px solid var(--bd);border-radius:9px;font-size:11px;font-family:'DM Mono',monospace;color:var(--t1)" type="number" value="${b.amount}" onchange="A.updEB(${i},this.value)"><div onclick="A.remCat(${i})" style="width:26px;height:26px;border-radius:7px;background:var(--roseA);color:var(--rose);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:12px">✕</div></div>`).join('');this.updEBSum()},
+  updEB(i,v){S.budget[i].amount=parseFloat(v)||0;this.updEBSum()},
+  remCat(i){S.budget.splice(i,1);this.renderEbRows()},
+  addCat2(){const n=document.getElementById('eb-nm')?.value.trim();const a=parseFloat(document.getElementById('eb-am')?.value)||0;if(!n){this.toast(L('نام وارد کنید','Enter name'));return}S.budget.push({name:n,amount:a});document.getElementById('eb-nm').value='';document.getElementById('eb-am').value='';this.renderEbRows()},
+  updEBSum(){const a=S.budget.reduce((s,b)=>s+b.amount,0);const l=Math.max(0,(S.user.expense||0)-a);const ea=document.getElementById('eb-alloc'),el2=document.getElementById('eb-left');if(ea)ea.textContent=fmt(a)+(S.lang==='fa'?' ت':' T');if(el2)el2.textContent=fmt(l)+(S.lang==='fa'?' ت':' T')},
+  savePro(){const n=document.getElementById('ep-nm')?.value.trim();if(!n){this.toast(L('نام وارد کنید','Enter name'));return}S.user.name=n;DB.save();this.closeById('m-ep');this.updAvs();this.toast(L('ذخیره شد ✓','Saved ✓'))},
+  saveFin(){const i=parseFloat(document.getElementById('ef-i')?.value)||0;const e=parseFloat(document.getElementById('ef-e')?.value)||0;S.user.income=i;S.user.expense=e;DB.save();this.closeById('m-ef');this.renderAll();if(S.curPage==='insights')this.renderIns();if(S.curPage==='profile')this.renderProf();this.toast(L('ذخیره شد ✓','Saved ✓'))},
+  saveBud(){DB.save();this.closeById('m-eb');if(S.curPage==='insights')this.renderIns();if(S.curPage==='profile')this.renderProf();this.toast(L('بودجه ذخیره شد ✓','Budget saved ✓'))},
+  doTr(){const a=document.getElementById('tr-amt')?.value;if(!a){this.toast(L('مبلغ وارد کنید','Enter amount'));return}this.closeById('m-tr');this.toast(L(`${fmtF(parseInt(a))} ت انتقال یافت ✓`,`${fmtF(parseInt(a))} T transferred ✓`))},
+  calcLoan(){const p=parseFloat(document.getElementById('lc-a')?.value)||0;const n=parseInt(document.getElementById('lc-m')?.value)||12;const r=parseFloat(document.getElementById('lc-r')?.value)||24;const mr=r/12/100;const inst=p>0&&n>0?Math.round(p*(mr*Math.pow(1+mr,n))/(Math.pow(1+mr,n)-1)):0;const tot=inst*n;const ir=document.getElementById('lc-inst');const tr=document.getElementById('lc-tot');if(ir)ir.textContent=inst>0?fmtF(inst)+(S.lang==='fa'?' ت/ماه':' T/mo'):'—';if(tr)tr.textContent=inst>0?L(`مجموع: ${fmtF(tot)} ت`,`Total: ${fmtF(tot)} T`):''},
+
+  // UTILS
+  copy(txt,btn){navigator.clipboard?.writeText(txt).then(()=>{btn.textContent=L('✓','✓');btn.style.color='var(--mint)';setTimeout(()=>{btn.textContent=L('کپی','Copy');btn.style.color='var(--gold)'},1800)}).catch(()=>this.toast(L('کپی نشد','Failed')))},
+  toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400)},
+  clearData(){if(!confirm(L('همه داده‌ها پاک شود؟','Clear all data?')))return;localStorage.removeItem(DB.K);location.reload()},
+
+  init(){const ok=DB.load();if(ok&&S.user.name){applyLang();this.launch()}else{applyLang();document.getElementById('s-lang').classList.add('active')}document.querySelectorAll('.ov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}))}
+};
+document.addEventListener('DOMContentLoaded',()=>A.init());
+</script>
+</body>
+</html>
